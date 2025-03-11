@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card, Form, Button, Row, Col, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import PropTypes from "prop-types";
@@ -7,43 +7,17 @@ import { auth } from "../../../firebase";
 
 const UserPostForm = ({ onAddPost, onCancel }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    location: '',
-    tags: '',
+    title: "",
+    content: "",
+    location: "",
+    tags: "",
     images: [],
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, userLoading] = useAuthState(auth);
-  const [userData, setUserData] = useState(null);
 
-  // Fetch current user data from backend
-  const fetchCurrentUser = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) throw new Error("Authentication token not found.");
-
-      const response = await axios.get("http://localhost:3000/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 5000,
-      });
-      setUserData(response.data);
-    } catch (err) {
-      setError("Failed to load user data.");
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!userLoading && user) {
-      fetchCurrentUser();
-    }
-  }, [userLoading, user, fetchCurrentUser]);
-
-  // Handle input changes
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -52,13 +26,11 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
     }
   }, [errors]);
 
-  // Handle image file uploads
   const handleImageChange = useCallback((e) => {
     const files = Array.from(e.target.files).slice(0, 5);
     setFormData((prev) => ({ ...prev, images: files }));
   }, []);
 
-  // Validate form data
   const validate = useCallback(() => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = "Title is required";
@@ -68,11 +40,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  // Handle form submission
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!validate() || !user || !userData) return;
+      if (!validate() || !user) return;
 
       setLoading(true);
       setError(null);
@@ -82,18 +53,17 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
         .map((tag) => tag.trim().toLowerCase())
         .filter((tag) => tag !== "");
 
-        const postData = new FormData();
-        postData.append("title", formData.title);
-        postData.append("content", formData.content);
-        postData.append("location", formData.location);
-        postData.append("tags", tagsArray);
-        formData.images.forEach((image) => {
-          postData.append("images", image);
-        });
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) throw new Error("Authentication token not found.");
+      const postData = new FormData();
+      postData.append("title", formData.title);
+      postData.append("content", formData.content);
+      postData.append("location", formData.location);
+      postData.append("tags", JSON.stringify(tagsArray)); // Send tags as JSON string
+      formData.images.forEach((image) => {
+        postData.append("images", image);
+      });
 
+      try {
+        const token = await user.getIdToken();
         const response = await axios.post(
           "http://localhost:3000/api/community/posts",
           postData,
@@ -105,24 +75,23 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
             timeout: 10000,
           }
         );
-        onAddPost(response.data);
+        onAddPost(response.data.post); // Pass only the post object
         setFormData({ title: "", content: "", location: "", tags: "", images: [] });
         setLoading(false);
       } catch (err) {
-        setError("Failed to share post. Please try again.");
+        setError("Failed to share post: " + (err.response?.data?.message || err.message));
         setLoading(false);
       }
     },
-    [formData, user, userData, validate, onAddPost]
+    [formData, user, validate, onAddPost]
   );
 
-  // Loading state for user fetch
-  if (userLoading || (!userData && !error && user)) {
+  if (userLoading) {
     return (
       <Card className="shadow-sm">
         <Card.Body className="text-center">
           <Spinner animation="border" size="sm" className="me-2" />
-          Loading user data...
+          Loading...
         </Card.Body>
       </Card>
     );
@@ -144,7 +113,7 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
         <h5 className="mb-3">Share a Hidden Spot</h5>
 
         {error && (
-          <Alert variant="danger" role="alert">
+          <Alert variant="danger" dismissible onClose={() => setError(null)}>
             {error}
           </Alert>
         )}

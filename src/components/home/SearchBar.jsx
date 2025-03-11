@@ -15,6 +15,7 @@ const SearchBar = ({ onSearch }) => {
     debounce(async (searchQuery) => {
       if (!searchQuery.trim()) {
         setSuggestions([]);
+        setLoading(false);
         return;
       }
 
@@ -26,10 +27,14 @@ const SearchBar = ({ onSearch }) => {
           params: { q: searchQuery },
           timeout: 5000,
         });
-        setSuggestions(response.data || []);
-        setLoading(false);
+        const data = response.data;
+        // Ensure suggestions is an array
+        setSuggestions(Array.isArray(data) ? data : data?.suggestions || []);
       } catch (err) {
+        console.error('Error fetching suggestions:', err.response?.data || err.message);
         setError('Failed to fetch suggestions. Please try again.');
+        setSuggestions([]);
+      } finally {
         setLoading(false);
       }
     }, 300),
@@ -54,17 +59,20 @@ const SearchBar = ({ onSearch }) => {
 
       setLoading(true);
       setError(null);
-      setSuggestions([]);
+      setSuggestions([]); // Clear suggestions on full search
 
       try {
         const response = await axios.get('http://localhost:3000/api/spots/search', {
           params: { query },
           timeout: 5000,
         });
-        onSearch(response.data); // Pass { spots, totalPages } to parent
-        setLoading(false);
+        const searchResults = response.data;
+        // Pass results to parent (ensure it’s an array or structured data)
+        onSearch(Array.isArray(searchResults) ? searchResults : searchResults.spots || []);
       } catch (err) {
+        console.error('Error during search:', err.response?.data || err.message);
         setError('Search failed. Please try again.');
+      } finally {
         setLoading(false);
       }
     },
@@ -76,6 +84,7 @@ const SearchBar = ({ onSearch }) => {
     (suggestion) => {
       setQuery(suggestion);
       setSuggestions([]);
+      // Trigger search immediately with the selected suggestion
       handleSubmit({ preventDefault: () => {} });
     },
     [handleSubmit]
@@ -91,9 +100,9 @@ const SearchBar = ({ onSearch }) => {
       <InputGroup className="mb-3">
         <InputGroup.Text>
           {loading ? (
-            <Spinner animation="border" size="sm" />
+            <Spinner animation="border" size="sm" aria-label="Loading" />
           ) : (
-            <i className="bi bi-search"></i>
+            <i className="bi bi-search" aria-hidden="true"></i>
           )}
         </InputGroup.Text>
         <Form.Control
@@ -101,7 +110,7 @@ const SearchBar = ({ onSearch }) => {
           value={query}
           onChange={handleChange}
           disabled={loading}
-          aria-label="Search"
+          aria-label="Search for spots"
         />
         <Button variant="primary" type="submit" disabled={loading || !query.trim()}>
           Search
@@ -129,7 +138,7 @@ const SearchBar = ({ onSearch }) => {
 
       {/* Error message */}
       {error && (
-        <Alert variant="danger" className="small mt-1">
+        <Alert variant="danger" className="small mt-1" dismissible onClose={() => setError(null)}>
           {error}
           <Button variant="link" onClick={handleSubmit} className="p-0 ms-2">
             Retry

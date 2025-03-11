@@ -2,25 +2,35 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, ListGroup, Button, Spinner } from "react-bootstrap";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../../firebase";
 
 const PopularUsers = ({ limit = 4 }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [following, setFollowing] = useState(new Set());
+  const [user] = useAuthState(auth); // Get current user for auth token
 
   const fetchPopularUsers = useCallback(async () => {
     try {
-      const response = await axios.get("/api/users/popular", {
+      setLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+
+      console.log("🚀 Fetching popular users with token:", token ? "✅ Token Present" : "❌ No Token");
+
+      const response = await axios.get("http://localhost:3000/api/users/popular", {
         params: { limit },
+        headers: token ? { Authorization: `Bearer ${token}` } : {}, // ✅ Ensure token is included only if available
         timeout: 5000,
       });
-      // Ensure users is always an array
-      const usersData = Array.isArray(response.data) ? response.data : [];
-      setUsers(usersData);
-      setLoading(false);
-    } catch {
-      setError("Failed to load popular users. Please try again.");
+
+      console.log("✅ Popular users fetched:", response.data);
+      setUsers(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      console.error("❌ Error fetching popular users:", err.response?.data || err.message);
+      setError("Failed to load popular users: " + (err.response?.data?.message || err.message));
+    } finally {
       setLoading(false);
     }
   }, [limit]);
@@ -28,42 +38,6 @@ const PopularUsers = ({ limit = 4 }) => {
   useEffect(() => {
     fetchPopularUsers();
   }, [fetchPopularUsers]);
-
-  const handleFollowToggle = useCallback(
-    async (userId) => {
-      const isFollowing = following.has(userId);
-      try {
-        if (isFollowing) {
-          await axios.post(`/api/users/${userId}/unfollow`);
-          setFollowing((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-          });
-          setUsers((prev) =>
-            prev.map((user) =>
-              user.id === userId
-                ? { ...user, followers: user.followers - 1 }
-                : user
-            )
-          );
-        } else {
-          await axios.post(`/api/users/${userId}/follow`);
-          setFollowing((prev) => new Set(prev).add(userId));
-          setUsers((prev) =>
-            prev.map((user) =>
-              user.id === userId
-                ? { ...user, followers: user.followers + 1 }
-                : user
-            )
-          );
-        }
-      } catch {
-        setError(`Failed to ${isFollowing ? "unfollow" : "follow"} user.`);
-      }
-    },
-    [following]
-  );
 
   if (loading) {
     return (
@@ -82,10 +56,7 @@ const PopularUsers = ({ limit = 4 }) => {
         <Card.Body className="text-center text-danger">
           {error}
           <div>
-            <button
-              className="btn btn-link p-0 mt-2"
-              onClick={fetchPopularUsers}
-            >
+            <button className="btn btn-link p-0 mt-2" onClick={fetchPopularUsers}>
               Retry
             </button>
           </div>
@@ -101,30 +72,28 @@ const PopularUsers = ({ limit = 4 }) => {
         <ListGroup variant="flush">
           {users.length > 0 ? (
             users.map((user) => (
-              <ListGroup.Item key={user.id} className="px-0 py-2 border-bottom">
+              <ListGroup.Item key={user._id} className="px-0 py-2 border-bottom">
                 <div className="d-flex align-items-center">
                   <img
-                    src={user.avatar}
-                    alt={user.name}
+                    src={user.profilePic || "/fallback-avatar.jpg"} // Match User model field
+                    alt={user.username} // Match User model field
                     className="rounded-circle me-2"
                     width="40"
                     height="40"
                     onError={(e) => (e.target.src = "/fallback-avatar.jpg")}
                   />
                   <div className="me-auto">
-                    <div className="fw-bold">{user.name}</div>
+                    <div className="fw-bold">{user.username}</div>
                     <small className="text-muted">
-                      {user.posts} posts • {user.followers} followers
+                      {user.posts || 0} posts • {user.followers || 0} followers
                     </small>
                   </div>
                   <Button
-                    variant={
-                      following.has(user.id) ? "primary" : "outline-primary"
-                    }
+                    variant={following.has(user._id) ? "primary" : "outline-primary"}
                     size="sm"
-                    onClick={() => handleFollowToggle(user.id)}
+                    disabled={!auth.currentUser} // Disable if not logged in
                   >
-                    {following.has(user.id) ? "Following" : "Follow"}
+                    {following.has(user._id) ? "Following" : "Follow"}
                   </Button>
                 </div>
               </ListGroup.Item>
@@ -136,11 +105,7 @@ const PopularUsers = ({ limit = 4 }) => {
           )}
         </ListGroup>
         <div className="text-center mt-3">
-          <Button
-            variant="link"
-            className="text-decoration-none"
-            onClick={fetchPopularUsers}
-          >
+          <Button variant="link" className="text-decoration-none" onClick={fetchPopularUsers}>
             See More
           </Button>
         </div>

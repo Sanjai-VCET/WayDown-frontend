@@ -2,7 +2,10 @@ import { useState, useCallback } from 'react';
 import { Card, Badge, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import PropTypes from 'prop-types'; // For type checking
+import PropTypes from 'prop-types';
+import { auth } from "../../../firebase"; 
+
+ // For type checking
 
 const SpotCard = ({ spot }) => {
   const [isFavorite, setIsFavorite] = useState(spot.isFavorite || false);
@@ -17,18 +20,35 @@ const SpotCard = ({ spot }) => {
 
       setLoadingFavorite(true);
       setError(null);
+       const user = auth.currentUser;
+      if (!user) {
+        throw new Error("User is not authenticated");
+      }
+      const token = await user.getIdToken();// Retrieve the token from localStorage
+
+      if (!token) {
+        setError('You must be logged in to like a spot.');
+        setLoadingFavorite(false);
+        return;
+      }
 
       try {
-        if (isFavorite) {
-          await axios.post(`/api/spots/${spot.id}/unfavorite`, {}, { timeout: 5000 });
-          setIsFavorite(false);
-        } else {
-          await axios.post(`/api/spots/${spot.id}/favorite`, {}, { timeout: 5000 });
-          setIsFavorite(true);
-        }
+        const url = isFavorite
+          ? `/api/spots/${spot.id}/unlike`
+          : `/api/spots/${spot.id}/like`;
+
+        console.log('Making request to:', url); // Log the request URL
+
+        await axios.post(url, {}, {
+          headers: { Authorization: `Bearer ${token}` }, // Include the token in the headers
+          timeout: 5000,
+        });
+
+        setIsFavorite((prev) => !prev); // Toggle the favorite state
         setLoadingFavorite(false);
       } catch (err) {
-        setError('Failed to update favorite status.');
+        console.error('Error updating like status:', err.response?.data || err.message);
+        setError('Failed to update like status.');
         setLoadingFavorite(false);
       }
     },
@@ -62,7 +82,7 @@ const SpotCard = ({ spot }) => {
           {loadingFavorite ? (
             <Spinner animation="border" size="sm" />
           ) : (
-            <i className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'}`} />
+            <i className={`bi ${isFavorite ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`} />
           )}
         </Button>
       </div>

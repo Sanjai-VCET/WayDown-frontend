@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, ListGroup, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import api from "../../api/api"; // Import configured Axios instance
-import { AuthProvider } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext"; // Use `useAuth` instead of `useContext(AuthProvider)`
 import PropTypes from "prop-types";
 
 const NearbySuggestions = ({ userLocation }) => {
-  const { token } = useContext(AuthProvider); // Use token if needed
+  const { token } = useAuth(); // Correct way to access auth context
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,11 +16,13 @@ const NearbySuggestions = ({ userLocation }) => {
       const params = userLocation
         ? { lat: userLocation.lat, lon: userLocation.lng, radius: 500000, page: 1, limit: 9 }
         : { lat: 40.7128, lon: -74.0060, radius: 50000, page: 1, limit: 9 }; // Default to NYC
+
       const response = await api.get("/api/spots/nearby", {
         params,
         timeout: 5000,
         headers: token ? { Authorization: `Bearer ${token}` } : {}, // Optional auth
       });
+
       setSuggestions(response.data.spots || []);
       setLoading(false);
     } catch (err) {
@@ -75,7 +77,6 @@ const NearbySuggestions = ({ userLocation }) => {
                     {spot.name}
                   </Link>
                   <span className="text-muted small">
-                    {/* Calculate distance if available in response */}
                     {spot.distance ? `${spot.distance} km` : "Nearby"}
                   </span>
                 </div>

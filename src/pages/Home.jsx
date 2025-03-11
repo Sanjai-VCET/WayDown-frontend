@@ -48,6 +48,7 @@ const Home = () => {
         category: spot.tags[0] || "Unknown", // Use first tag as category
         description: spot.content,
         location: spot.city || "Madurai",
+        coordinates: spot.location?.coordinates || [0, 0],
         distance: spot.distance || null, // Distance might need to be calculated client-side
       }));
       setSpots(mappedSpots);

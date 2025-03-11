@@ -1,150 +1,126 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Card } from 'react-bootstrap';
-import axios from 'axios';
-import PropTypes from 'prop-types'; // For type checking
+import { useState, useEffect, useRef } from "react";
+import { Card, Spinner, Form, Button, Alert } from "react-bootstrap";
+import axios from "axios";
 
-const ChatbotContainer = ({ isTyping, onNewMessage }) => {
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ChatbotContainer = () => {
+  const [messages, setMessages] = useState([
+    { id: 1, sender: "bot", text: "Hi! How can I help you today?", timestamp: new Date() },
+  ]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
-  const webSocketRef = useRef(null);
 
-  // Memoized timestamp formatter
-  const formatTime = useCallback((timestamp) => {
-    return new Date(timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }, []);
+  const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
-  // Fetch initial messages
-  const fetchMessages = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/chat/messages', {
-        timeout: 5000, // Add timeout to prevent hanging
-      });
-      setMessages(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to load messages. Please try again.');
-      setLoading(false);
-    }
-  }, []);
-
-  // Initialize WebSocket for real-time updates
-  const initializeWebSocket = useCallback(() => {
-    if (webSocketRef.current) return; // Prevent multiple connections
-
-    webSocketRef.current = new WebSocket('ws://your-backend-url/chat'); // Replace with your WebSocket URL
-
-    webSocketRef.current.onopen = () => console.log('WebSocket connected');
-    webSocketRef.current.onmessage = (event) => {
-      const newMessage = JSON.parse(event.data);
-      setMessages((prev) => [...prev, newMessage]);
-      if (onNewMessage) onNewMessage(newMessage); // Notify parent if provided
-    };
-    webSocketRef.current.onerror = () => setError('WebSocket error occurred.');
-    webSocketRef.current.onclose = () => console.log('WebSocket disconnected');
-  }, [onNewMessage]);
-
-  // Setup on mount
   useEffect(() => {
-    fetchMessages();
-    initializeWebSocket();
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }, [messages]);
 
-    return () => {
-      if (webSocketRef.current) webSocketRef.current.close(); // Cleanup WebSocket
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!inputMessage.trim()) return;
+
+    // Add user message to chat
+    const userMessage = {
+      id: Date.now(),
+      sender: "user",
+      text: inputMessage,
+      timestamp: new Date(),
     };
-  }, [fetchMessages, initializeWebSocket]);
-
-  // Auto-scroll with debouncing
-  useEffect(() => {
-    const scrollToBottom = () => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-    const timeout = setTimeout(scrollToBottom, 100); // Debounce scrolling
-    return () => clearTimeout(timeout);
-  }, [messages, isTyping]);
-
-  // Retry handler
-  const handleRetry = () => {
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
     setLoading(true);
     setError(null);
-    fetchMessages();
-    initializeWebSocket();
+
+    try {
+      const response = await axios.post(N8N_WEBHOOK_URL, { chatInput: inputMessage }, { timeout: 10000 });
+      console.log("n8n response:", response.data); // Debugging log
+
+      // Extract response from JSON format
+      const botText = response.data?.response ?? "I'm sorry, I didn't understand that.";
+
+      const botResponse = {
+        id: Date.now() + 1,
+        sender: "bot",
+        text: botText,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, botResponse]);
+    } catch (err) {
+      console.error("Error:", err); // Debugging log
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: "bot", text: "AI service is unavailable.", timestamp: new Date() },
+      ]);
+      setError("Oops! Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div
-        className="chat-container p-3 border rounded d-flex align-items-center justify-content-center"
-        style={{ height: '400px', backgroundColor: '#f8f9fa' }}
-      >
-        <span>Loading messages...</span>
-      </div>
-    );
-  }
-
-  // Error state with retry
-  if (error) {
-    return (
-      <div
-        className="chat-container p-3 border rounded d-flex flex-column align-items-center justify-content-center"
-        style={{ height: '400px', backgroundColor: '#f8f9fa' }}
-      >
-        <span className="text-danger mb-2">{error}</span>
-        <button className="btn btn-primary" onClick={handleRetry}>
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="chat-container p-3 border rounded"
-      style={{
-        height: '400px',
-        overflowY: 'auto',
-        backgroundColor: '#f8f9fa',
-      }}
-    >
-      {messages.map((message) => (
+    <Card className="shadow-sm">
+      <Card.Body>
+        <h5 className="mb-3">
+          <i className="bi bi-chat-dots text-primary me-2"></i>
+          AI Chatbot
+        </h5>
         <div
-          key={message.id}
-          className={`message-bubble mb-3 ${message.sender === 'user' ? 'text-end' : ''}`}
+          className="chat-container p-3 border rounded"
+          style={{ height: "400px", overflowY: "auto", backgroundColor: "#f8f9fa" }}
+          role="log"
+          aria-live="polite"
         >
-          <div
-            className={`d-inline-block p-3 rounded ${
-              message.sender === 'user' ? 'bg-primary text-white' : 'bg-light text-dark'
-            }`}
-          >
-            <p className="mb-1">{message.text}</p>
-            <small className="text-muted">{formatTime(message.timestamp)}</small>
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`message-bubble mb-3 ${message.sender === "user" ? "text-end" : ""}`}
+            >
+              <div
+                className={`d-inline-block p-3 rounded ${
+                  message.sender === "user" ? "bg-primary text-white" : "bg-light text-dark"
+                }`}
+              >
+                <p className="mb-1">{message.text}</p>
+                <small className="text-muted">
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </small>
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="text-muted d-flex align-items-center">
+              <span className="me-2">AI is thinking...</span>
+              <Spinner animation="border" size="sm" />
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        {error && (
+          <Alert variant="danger" className="mt-2 text-center">
+            {error}
+          </Alert>
+        )}
+        <Form onSubmit={handleSendMessage} className="mt-3">
+          <div className="d-flex">
+            <Form.Control
+              type="text"
+              placeholder="Type your message..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              disabled={loading}
+            />
+            <Button type="submit" variant="primary" className="ms-2" disabled={loading || !inputMessage.trim()}>
+              <i className="bi bi-send"></i>
+            </Button>
           </div>
-        </div>
-      ))}
-
-      {isTyping && (
-        <div className="text-muted d-flex align-items-center">
-          <span className="me-2">Typing...</span>
-          <div className="spinner-grow spinner-grow-sm" role="status" />
-        </div>
-      )}
-
-      <div ref={messagesEndRef} />
-    </div>
+        </Form>
+      </Card.Body>
+    </Card>
   );
-};
-
-// PropTypes for type checking
-ChatbotContainer.propTypes = {
-  isTyping: PropTypes.bool.isRequired,
-  onNewMessage: PropTypes.func,
 };
 
 export default ChatbotContainer;

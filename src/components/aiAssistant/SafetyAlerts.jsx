@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Card, Alert, Spinner } from 'react-bootstrap';
-import axios from 'axios';
-import PropTypes from 'prop-types'; // For type checking
+import { useState, useEffect, useCallback } from "react";
+import { Card, Alert, Spinner } from "react-bootstrap";
+import axios from "axios";
+import PropTypes from "prop-types"; // For type checking
 
 const SafetyAlerts = ({ region }) => {
   const [alerts, setAlerts] = useState([]);
@@ -10,15 +10,20 @@ const SafetyAlerts = ({ region }) => {
 
   // Fetch alerts from backend
   const fetchAlerts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await axios.get('/api/safety-alerts', {
-        params: region ? { region } : {}, // Optional region filter
-        timeout: 5000, // Prevent hanging requests
+      const response = await axios.get("/api/safety-alerts", {
+        params: { region: region || "global" }, // Default to "global" if region is undefined
+        timeout: 5000,
       });
-      setAlerts(response.data);
+
+      // Ensure response is an array
+      setAlerts(response.data || []);
       setLoading(false);
     } catch (err) {
-      setError('Failed to load safety alerts. Please try again.');
+      setError("Failed to load safety alerts. Please try again.");
       setLoading(false);
     }
   }, [region]);
@@ -40,7 +45,7 @@ const SafetyAlerts = ({ region }) => {
     );
   }
 
-  // Error state with retry
+  // Error state with retry button
   if (error) {
     return (
       <Card className="mb-3 shadow-sm">
@@ -65,16 +70,16 @@ const SafetyAlerts = ({ region }) => {
         </Card.Title>
 
         {alerts.length > 0 ? (
-          alerts.map((alert) => (
+          alerts.map((alert, index) => (
             <Alert
-              key={alert.id}
-              variant={alert.type === 'warning' ? 'warning' : 'info'}
+              key={alert.id || index} // Use index as a fallback key
+              variant={alert.type === "warning" ? "warning" : "info"}
               className="mb-2 py-2"
             >
               <small>
                 <i
                   className={`bi bi-${
-                    alert.type === 'warning' ? 'exclamation-triangle' : 'info-circle'
+                    alert.type === "warning" ? "exclamation-triangle" : "info-circle"
                   } me-2`}
                 />
                 {alert.message}

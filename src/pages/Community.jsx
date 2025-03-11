@@ -1,19 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Nav,
-  Spinner,
-  Alert,
-} from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Nav, Spinner, Alert } from "react-bootstrap";
 import axios from "axios";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase"; // Adjust path to your Firebase config
+import { auth } from "../../firebase";
 
-// Components (assumed to be optimized separately)
 import UserPostForm from "../components/community/UserPostForm";
 import PostFeed from "../components/community/PostFeed";
 import PopularUsers from "../components/community/PopularUsers";
@@ -25,142 +15,52 @@ const Community = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user] = useAuthState(auth); // Firebase user state
+  const [user] = useAuthState(auth);
 
-  // Fetch posts from backend
+  // ✅ Improved fetchPosts to ensure proper number conversion
   const fetchPosts = useCallback(async () => {
     try {
-      const { data } = await axios.get("/api/community/posts", {
+      setLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+      const page = 1;
+      const limit = 10;
+
+      console.log("🚀 Fetching posts with:", { page, limit });
+
+      const { data } = await axios.get("http://localhost:3000/api/community/posts", {
+        params: { page: Number(page), limit: Number(limit) }, // Ensure numbers
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         timeout: 5000,
       });
-      setPosts(data || []);
-      setLoading(false);
-    } catch {
-      setError("Failed to load posts. Please try again.");
+
+      console.log("✅ Posts fetched:", data);
+      setPosts(data.posts || []);
+    } catch (err) {
+      console.error("❌ Error fetching posts:", err.response?.data || err.message);
+      setError("Failed to load posts: " + (err.response?.data?.message || err.message));
+    } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initial fetch
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
-  // Handle adding a new post
-  const handleAddPost = useCallback(
-    async (newPost) => {
-      if (!user) {
-        setError("Please log in to share a post.");
-        return;
-      }
-
-      try {
-        const postData = {
-          ...newPost,
-          userId: user.uid,
-          username: user.displayName || "Anonymous",
-          userAvatar:
-            user.photoURL ||
-            `https://ui-avatars.com/api/?name=${
-              user.displayName || "User"
-            }&background=random`,
-          timestamp: new Date().toISOString(),
-          likes: 0,
-          comments: [],
-        };
-        const { data } = await axios.post("/api/community/posts", postData, {
-          timeout: 5000,
-        });
-        setPosts((prev) => [data, ...prev]);
-        setShowPostForm(false);
-      } catch {
-        setError("Failed to add post.");
-      }
-    },
-    [user]
-  );
-
-  // Handle liking a post
-  const handleLike = useCallback(
-    async (postId) => {
-      if (!user) {
-        setError("Please log in to like posts.");
-        return;
-      }
-
-      try {
-        const { data } = await axios.post(
-          `/api/community/posts/${postId}/like`,
-          { userId: user.uid },
-          { timeout: 5000 }
-        );
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === postId ? { ...post, likes: data.likes } : post
-          )
-        );
-      } catch {
-        setError("Failed to like post.");
-      }
-    },
-    [user]
-  );
-
-  // Handle adding a comment
-  const handleAddComment = useCallback(
-    async (postId, comment) => {
-      if (!user) {
-        setError("Please log in to comment.");
-        return;
-      }
-      if (!comment.content) {
-        setError("Comment cannot be empty.");
-        return;
-      }
-
-      try {
-        const commentData = {
-          userId: user.uid,
-          username: user.displayName || "Anonymous",
-          content: comment.content,
-          timestamp: new Date().toISOString(),
-        };
-        const { data } = await axios.post(
-          `/api/community/posts/${postId}/comments`,
-          commentData,
-          { timeout: 5000 }
-        );
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === postId ? { ...post, comments: data.comments } : post
-          )
-        );
-      } catch {
-        setError("Failed to add comment.");
-      }
-    },
-    [user]
-  );
-
-  // Handle tab selection
   const handleTabSelect = useCallback((key) => setActiveTab(key), []);
 
-  // Memoized sorted posts
   const sortedPosts = useMemo(() => {
     switch (activeTab) {
       case "popular":
-        return [...posts].sort((a, b) => b.likes - a.likes);
+        return [...posts].sort((a, b) => b.likes.length - a.likes.length);
       case "following":
-        return user
-          ? posts.filter((post) => user.following?.includes(post.userId))
-          : [];
+        return user ? posts.filter((post) => user.following?.includes(post.user)) : [];
       case "recent":
       default:
         return posts;
     }
   }, [activeTab, posts, user]);
 
-  // Loading state
   if (loading) {
     return (
       <Container className="py-4 text-center">
@@ -170,24 +70,13 @@ const Community = () => {
     );
   }
 
-  // Error state
-  if (error) {
-    return (
-      <Container className="py-4">
-        <Alert
-          variant="danger"
-          className="text-center"
-          dismissible
-          onClose={() => setError(null)}
-        >
-          {error}
-        </Alert>
-      </Container>
-    );
-  }
-
   return (
     <Container className="py-4" aria-label="Community Page">
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -205,18 +94,13 @@ const Community = () => {
           </div>
         </Col>
       </Row>
-
       {showPostForm && (
         <Row className="mb-4">
           <Col>
-            <UserPostForm
-              onAddPost={handleAddPost}
-              onCancel={() => setShowPostForm(false)}
-            />
+            <UserPostForm onAddPost={fetchPosts} onCancel={() => setShowPostForm(false)} />
           </Col>
         </Row>
       )}
-
       <Row>
         <Col lg={8}>
           <Card className="mb-4 shadow-sm border-0">
@@ -244,16 +128,10 @@ const Community = () => {
                   </Nav.Link>
                 </Nav.Item>
               </Nav>
-
-              <PostFeed
-                posts={sortedPosts}
-                onLike={handleLike}
-                onAddComment={handleAddComment}
-              />
+              <PostFeed posts={sortedPosts} />
             </Card.Body>
           </Card>
         </Col>
-
         <Col lg={4}>
           <PopularUsers />
           <TrendingTags />
@@ -262,7 +140,5 @@ const Community = () => {
     </Container>
   );
 };
-
-Community.propTypes = {};
 
 export default Community;

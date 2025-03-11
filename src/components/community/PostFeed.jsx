@@ -13,117 +13,75 @@ const PostFeed = ({ onLike, onAddComment }) => {
   const [activeCommentPost, setActiveCommentPost] = useState(null);
   const [user, userLoading] = useAuthState(auth);
 
-  // Fetch posts and comments from backend
+  // ✅ Improved fetchPosts with better error logging
   const fetchPosts = useCallback(async () => {
     try {
+      setLoading(true);
+      const page = 1;
+      const limit = 10;
+
+      console.log("🚀 Fetching posts from API:", { page, limit });
+
       const response = await axios.get("http://localhost:3000/api/community/posts", {
+        params: { page, limit },
         timeout: 5000,
       });
-      const postsData = Array.isArray(response.data) ? response.data : [];
+
+      if (!response.data || !response.data.posts) {
+        throw new Error("Invalid response format: Missing posts field");
+      }
+
+      console.log("✅ Posts fetched successfully:", response.data);
+
+      const postsData = response.data.posts;
+
+      // ✅ Ensure failure in fetching comments does not break post retrieval
       const postsWithComments = await Promise.all(
         postsData.map(async (post) => {
-          const commentsResponse = await axios.get(
-            `http://localhost:3000/api/community/posts/${post._id}/comments`,
-            { timeout: 5000 }
-          );
-          return { ...post, comments: commentsResponse.data || [] };
+          try {
+            const commentsResponse = await axios.get(
+              `http://localhost:3000/api/community/posts/${post._id}/comments`,
+              { timeout: 5000 }
+            );
+            return { ...post, comments: commentsResponse.data || [] };
+          } catch (err) {
+            console.error(`❌ Failed to fetch comments for post ${post._id}:`, err.message);
+            return { ...post, comments: [] };
+          }
         })
       );
+
       setPosts(postsWithComments);
-      setLoading(false);
     } catch (err) {
-      setError("Failed to load posts. Please try again.");
+      console.error("❌ API Error:", err.response?.status, err.response?.data || err.message);
+      setError("Failed to load posts. Please check the API and try again.");
+    } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch on mount
+  // Fetch posts on mount
   useEffect(() => {
     if (!userLoading) {
       fetchPosts();
     }
   }, [userLoading, fetchPosts]);
 
-  // Format date
-  const formatDate = useCallback((dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  }, []);
+  // ✅ Handle like button click
+  const handleLike = (postId) => {
+    if (!user) return; // Prevent action if not logged in
+    onLike(postId); // Call the prop function
+  };
 
-  // Handle comment submission
-  const handleCommentSubmit = useCallback(
-    async (e, postId) => {
-      e.preventDefault();
-      if (!commentText.trim() || !user) return;
+  // ✅ Handle comment submission
+  const handleCommentSubmit = (postId) => {
+    if (!user || !commentText.trim()) return; // Prevent action if not logged in or empty comment
+    onAddComment(postId, commentText); // Call the prop function
+    setCommentText(""); // Clear input
+    setActiveCommentPost(null); // Close comment section
+  };
 
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) throw new Error("Authentication token not found.");
-
-        const response = await axios.post(
-          `http://localhost:3000/api/community/posts/${postId}/comments`,
-          { text: commentText },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            timeout: 5000,
-          }
-        );
-        onAddComment(postId, response.data);
-        setPosts((prev) =>
-          prev.map((post) =>
-            post._id === postId
-              ? { ...post, comments: [...post.comments, response.data] }
-              : post
-          )
-        );
-        setCommentText("");
-        setActiveCommentPost(null);
-      } catch (err) {
-        setError("Failed to add comment.");
-      }
-    },
-    [commentText, user, onAddComment]
-  );
-
-  // Handle like
-  const handleLike = useCallback(
-    async (postId) => {
-      if (!user) return;
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) throw new Error("Authentication token not found.");
-
-        const post = posts.find((p) => p._id === postId);
-        const isLiked = post.likes.includes(user.uid);
-
-        const method = isLiked ? "DELETE" : "POST";
-        await axios({
-          method,
-          url: `http://localhost:3000/api/community/posts/${postId}/like`,
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
-        });
-        onLike(postId);
-        setPosts((prev) =>
-          prev.map((post) =>
-            post._id === postId
-              ? {
-                  ...post,
-                  likes: isLiked
-                    ? post.likes.filter((uid) => uid !== user.uid)
-                    : [...post.likes, user.uid],
-                }
-              : post
-          )
-        );
-      } catch (err) {
-        setError("Failed to like post.");
-      }
-    },
-    [user, posts, onLike]
-  );
-
-  // Loading state
+  // ✅ Loading state
   if (loading || userLoading) {
     return (
       <div className="text-center py-5">
@@ -133,7 +91,7 @@ const PostFeed = ({ onLike, onAddComment }) => {
     );
   }
 
-  // Error state
+  // ✅ Error state
   if (error) {
     return (
       <div className="text-center py-5">
@@ -147,149 +105,123 @@ const PostFeed = ({ onLike, onAddComment }) => {
     );
   }
 
-  // Empty state
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-5">
-        <p className="text-muted">
-          No posts yet. Be the first to share a hidden spot!
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="post-feed">
-      {posts.map((post) => (
-        <Card key={post._id} className="mb-4">
-          <Card.Body>
-            {/* Post Header */}
-            <div className="d-flex align-items-center mb-3">
-              <img
-                src={post.user.profilePic || "/fallback-avatar.jpg"}
-                alt={post.user.username}
-                className="rounded-circle me-2"
-                width="40"
-                height="40"
-                onError={(e) => (e.target.src = "/fallback-avatar.jpg")}
-              />
-              <div>
-                <h6 className="mb-0">{post.user.username}</h6>
-                <small className="text-muted">
-                  {formatDate(post.createdAt)} • {post.location}
-                </small>
-              </div>
-            </div>
-
-            {/* Post Title & Content */}
-            <h5 className="mb-2">{post.title}</h5>
-            <p>{post.content}</p>
-
-            {/* Post Tags */}
-            <div className="mb-3">
-              {post.tags.map((tag, index) => (
-                <Badge bg="light" text="dark" className="me-2 mb-2" key={index}>
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Post Image */}
-            {post.images?.length > 0 && (
-              <div className="post-images mb-3">
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <Card key={post._id} className="mb-4">
+            <Card.Body>
+              {/* Post Header */}
+              <div className="d-flex align-items-center mb-3">
                 <img
-                  src={post.images[0].url}
-                  alt={post.title}
-                  className="img-fluid rounded"
-                  onError={(e) => (e.target.src = "/fallback-image.jpg")}
+                  src={post.user?.profilePic || "/fallback-avatar.jpg"}
+                  alt={post.user?.username}
+                  className="rounded-circle me-2"
+                  width="40"
+                  height="40"
+                  onError={(e) => (e.target.src = "/fallback-avatar.jpg")}
                 />
+                <div>
+                  <h6 className="mb-0">{post.user?.username || "Unknown User"}</h6>
+                  <small className="text-muted">
+                    {new Date(post.createdAt).toLocaleDateString()} • {post.location}
+                  </small>
+                </div>
               </div>
-            )}
 
-            {/* Post Actions */}
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <Button
-                  variant={post.likes.includes(user?.uid) ? "danger" : "outline-primary"}
-                  size="sm"
-                  className="me-2"
-                  onClick={() => handleLike(post._id)}
-                  disabled={!user}
-                >
-                  <i className="bi bi-heart me-1" />
-                  {post.likes.length}
-                </Button>
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  onClick={() =>
-                    setActiveCommentPost(
-                      activeCommentPost === post._id ? null : post._id
-                    )
-                  }
-                  disabled={!user}
-                >
-                  <i className="bi bi-chat me-1" />
-                  {post.comments.length}
+              {/* Post Title & Content */}
+              <h5 className="mb-2">{post.title}</h5>
+              <p>{post.content}</p>
+
+              {/* Post Tags */}
+              <div className="mb-3">
+                {post.tags.map((tag, index) => (
+                  <Badge bg="light" text="dark" className="me-2 mb-2" key={index}>
+                    #{tag}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* Post Actions */}
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <Button
+                    variant={post.likes.includes(user?.uid) ? "danger" : "outline-primary"}
+                    size="sm"
+                    className="me-2"
+                    onClick={() => handleLike(post._id)} // Use onLike via handleLike
+                    disabled={!user}
+                  >
+                    <i className="bi bi-heart me-1" />
+                    {post.likes.length}
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() =>
+                      setActiveCommentPost(activeCommentPost === post._id ? null : post._id)
+                    }
+                    disabled={!user}
+                  >
+                    <i className="bi bi-chat me-1" />
+                    {post.comments.length}
+                  </Button>
+                </div>
+                <Button variant="outline-secondary" size="sm">
+                  <i className="bi bi-share" />
                 </Button>
               </div>
-              <Button variant="outline-secondary" size="sm">
-                <i className="bi bi-share" />
-              </Button>
-            </div>
 
-            {/* Comments Section */}
-            {(post.comments.length > 0 || activeCommentPost === post._id) && (
-              <div className="comments-section p-3 bg-light rounded">
-                {post.comments.length > 0 && (
-                  <div className="existing-comments mb-3">
-                    <h6 className="mb-3 text-muted">Comments</h6>
-                    {post.comments.map((comment) => (
-                      <div
-                        key={comment.createdAt}
-                        className="comment mb-2 pb-2 border-bottom"
-                      >
-                        <div className="d-flex">
-                          <div className="fw-bold me-2">{comment.username}</div>
-                          <div>{comment.text}</div>
+              {/* Comments Section */}
+              {(post.comments.length > 0 || activeCommentPost === post._id) && (
+                <div className="comments-section p-3 bg-light rounded">
+                  {post.comments.length > 0 && (
+                    <div className="existing-comments mb-3">
+                      <h6 className="mb-3 text-muted">Comments</h6>
+                      {post.comments.map((comment, index) => (
+                        <div key={index} className="comment mb-2 pb-2 border-bottom">
+                          <div className="d-flex">
+                            <div className="fw-bold me-2">{comment.username}</div>
+                            <div>{comment.text}</div>
+                          </div>
+                          <small className="text-muted">
+                            {new Date(comment.createdAt).toLocaleDateString()}
+                          </small>
                         </div>
-                        <small className="text-muted">
-                          {formatDate(comment.createdAt)}
-                        </small>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Comment Form */}
-                {activeCommentPost === post._id && user && (
-                  <Form onSubmit={(e) => handleCommentSubmit(e, post._id)}>
-                    <Form.Group className="mb-2">
-                      <Form.Control
-                        as="textarea"
-                        rows={2}
-                        placeholder="Write a comment..."
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                      />
-                    </Form.Group>
-                    <div className="d-flex justify-content-end">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        type="submit"
-                        disabled={!commentText.trim()}
-                      >
-                        Post Comment
-                      </Button>
+                      ))}
                     </div>
-                  </Form>
-                )}
-              </div>
-            )}
-          </Card.Body>
-        </Card>
-      ))}
+                  )}
+                  {activeCommentPost === post._id && (
+                    <Form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleCommentSubmit(post._id);
+                      }}
+                    >
+                      <Form.Group className="d-flex">
+                        <Form.Control
+                          type="text"
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          placeholder="Add a comment..."
+                          className="me-2"
+                        />
+                        <Button type="submit" variant="primary" size="sm">
+                          Post
+                        </Button>
+                      </Form.Group>
+                    </Form>
+                  )}
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        ))
+      ) : (
+        <div className="text-center py-5">
+          <p className="text-muted">No posts yet. Be the first to share a hidden spot!</p>
+        </div>
+      )}
     </div>
   );
 };
