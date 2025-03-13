@@ -283,8 +283,7 @@ const InteractiveMap = ({ spots: initialSpots }) => {
                 <p>{marker.description}</p>
                 <a
                   href={`/spots/${marker.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              
                 >
                   View Details
                 </a>

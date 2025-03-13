@@ -30,7 +30,7 @@ const AITravelPlanner = () => {
 
     try {
       const response = await axios.post(
-        'https://projectmates.app.n8n.cloud/webhook-test/01c85105-266d-41ca-ab70-dd12c1bf7c63', // n8n Webhook URL
+        'https://shreesh.app.n8n.cloud/webhook-test/01c85105-266d-41ca-ab70-dd12c1bf7c63', // n8n Webhook URL
         preferences
       );
       setItinerary(response.data);
