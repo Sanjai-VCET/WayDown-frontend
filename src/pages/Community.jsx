@@ -17,7 +17,6 @@ const Community = () => {
   const [error, setError] = useState(null);
   const [user] = useAuthState(auth);
 
-  // ✅ Improved fetchPosts to ensure proper number conversion
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -28,7 +27,7 @@ const Community = () => {
       console.log("🚀 Fetching posts with:", { page, limit });
 
       const { data } = await axios.get("http://localhost:3000/api/community/posts", {
-        params: { page: Number(page), limit: Number(limit) }, // Ensure numbers
+        params: { page: Number(page), limit: Number(limit) },
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         timeout: 5000,
       });
@@ -46,6 +45,59 @@ const Community = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  const handleLike = useCallback(async (postId) => {
+    if (!user) {
+      setError("You must be logged in to like a post.");
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const post = posts.find(p => p._id === postId);
+      if (!post) throw new Error("Post not found in local state.");
+      const isLiked = post.likes.includes(user.uid);
+
+      // Backend handles both like and unlike with a single endpoint
+      const response = await axios.post(
+        `http://localhost:3000/api/community/posts/${postId}/like`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
+      );
+
+      setPosts(posts.map(p =>
+        p._id === postId ? { ...p, likes: response.data.likes } : p
+      ));
+    } catch (error) {
+      console.error("Error liking post:", error.response?.data || error.message);
+      setError(`Failed to ${post && post.likes.includes(user.uid) ? "unlike" : "like"} post: ${error.response?.data?.error || error.message}`);
+    }
+  }, [user, posts]);
+
+  const handleAddComment = useCallback(async (postId, commentText) => {
+    if (!user) {
+      setError("You must be logged in to comment.");
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await axios.post(
+        `http://localhost:3000/api/community/posts/${postId}/comments`, // Changed to match backend
+        { text: commentText },
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
+      );
+
+      setPosts(posts.map(p =>
+        p._id === postId
+          ? { ...p, comments: [...p.comments, response.data] }
+          : p
+      ));
+    } catch (error) {
+      console.error("Error adding comment:", error.response?.data || error.message);
+      setError(`Failed to add comment: ${error.response?.data?.error || error.message}`);
+    }
+  }, [user, posts]);
 
   const handleTabSelect = useCallback((key) => setActiveTab(key), []);
 
@@ -128,7 +180,11 @@ const Community = () => {
                   </Nav.Link>
                 </Nav.Item>
               </Nav>
-              <PostFeed posts={sortedPosts} />
+              <PostFeed
+                posts={sortedPosts}
+                onLike={handleLike}
+                onAddComment={handleAddComment}
+              />
             </Card.Body>
           </Card>
         </Col>

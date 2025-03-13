@@ -36,7 +36,7 @@ const ChatbotContainer = () => {
     setError(null);
 
     try {
-      const response = await axios.post(N8N_WEBHOOK_URL, { chatInput: inputMessage }, { timeout: 10000 });
+      const response = await axios.post(N8N_WEBHOOK_URL, { chatInput: inputMessage });
       console.log("n8n response:", response.data); // Debugging log
 
       // Extract response from JSON format

@@ -2,55 +2,37 @@ import { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Nav, Tab, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebase'; // Adjust path to your Firebase config
-import { useSpots } from '../context/SpotContext'; // Assuming SpotContext is optimized
-import axios from 'axios';
+import { auth } from '../../firebase';
+import { useSpots } from '../context/SpotContext';
 
-// Components (assumed to be optimized separately)
 import SpotManagementTable from '../components/admin/SpotManagementTable';
 import UserReportsSection from '../components/admin/UserReportsSection';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
+import UserManagementTable from '../components/admin/UserManagementTable';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('spots');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { spots } = useSpots();
-  const [user, userLoading] = useAuthState(auth); // Firebase user state
+  const [user, userLoading] = useAuthState(auth);
   const navigate = useNavigate();
 
-  // Fetch admin status from backend
-  const verifyAdmin = useCallback(async () => {
-    if (!user) return;
+  // Handle tab selection
+  const handleTabSelect = useCallback((key) => {
+    setActiveTab(key);
+  }, []);
 
-    try {
-      const { data } = await axios.get(`/api/users/${user.uid}`, { timeout: 5000 });
-      if (!data.isAdmin) {
-        setError('Unauthorized: Admin access required.');
-        navigate('/home'); // Redirect if not admin
-      }
-    } catch {
-      setError('Failed to verify admin status.');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, navigate]);
-
-  // Check admin status on mount
+  // Check auth on mount
   useEffect(() => {
     if (userLoading) return;
     if (!user) {
       setError('Please log in to access the admin dashboard.');
       navigate('/onboarding');
     } else {
-      verifyAdmin();
+      setLoading(false);
     }
-  }, [user, userLoading, navigate, verifyAdmin]);
-
-  // Handle tab selection
-  const handleTabSelect = useCallback((key) => {
-    setActiveTab(key);
-  }, []);
+  }, [user, userLoading, navigate]);
 
   // Loading state
   if (loading || userLoading) {
@@ -81,7 +63,6 @@ const AdminDashboard = () => {
           <p className="text-muted">Manage spots, user reports, and analytics</p>
         </Col>
       </Row>
-
       <Row>
         <Col>
           <Card className="shadow-sm border-0">
@@ -89,7 +70,7 @@ const AdminDashboard = () => {
               <Nav
                 variant="tabs"
                 activeKey={activeTab}
-                onSelect={handleTabSelect} // Optimized handler
+                onSelect={handleTabSelect}
                 aria-label="Admin Dashboard Navigation"
               >
                 <Nav.Item>
@@ -107,36 +88,26 @@ const AdminDashboard = () => {
                     Analytics
                   </Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="users" aria-controls="users-tab">
+                    User Management
+                  </Nav.Link>
+                </Nav.Item>
               </Nav>
             </Card.Header>
-
             <Card.Body>
               <Tab.Content>
-                <Tab.Pane
-                  eventKey="spots"
-                  id="spots-tab"
-                  active={activeTab === 'spots'}
-                  aria-labelledby="spots-tab"
-                >
+                <Tab.Pane eventKey="spots" id="spots-tab" active={activeTab === 'spots'} aria-labelledby="spots-tab">
                   <SpotManagementTable spots={spots} />
                 </Tab.Pane>
-
-                <Tab.Pane
-                  eventKey="reports"
-                  id="reports-tab"
-                  active={activeTab === 'reports'}
-                  aria-labelledby="reports-tab"
-                >
+                <Tab.Pane eventKey="reports" id="reports-tab" active={activeTab === 'reports'} aria-labelledby="reports-tab">
                   <UserReportsSection />
                 </Tab.Pane>
-
-                <Tab.Pane
-                  eventKey="analytics"
-                  id="analytics-tab"
-                  active={activeTab === 'analytics'}
-                  aria-labelledby="analytics-tab"
-                >
+                <Tab.Pane eventKey="analytics" id="analytics-tab" active={activeTab === 'analytics'} aria-labelledby="analytics-tab">
                   <AnalyticsDashboard />
+                </Tab.Pane>
+                <Tab.Pane eventKey="users" id="users-tab" active={activeTab === 'users'} aria-labelledby="users-tab">
+                  <UserManagementTable />
                 </Tab.Pane>
               </Tab.Content>
             </Card.Body>

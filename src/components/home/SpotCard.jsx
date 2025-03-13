@@ -1,16 +1,26 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react'; // Added useEffect
 import { Card, Badge, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { auth } from "../../../firebase"; 
 
- // For type checking
-
 const SpotCard = ({ spot }) => {
-  const [isFavorite, setIsFavorite] = useState(spot.isFavorite || false);
+  const [isFavorite, setIsFavorite] = useState(false); // Default to false
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [error, setError] = useState(null);
+
+  // Sync isFavorite with server data on mount
+  useEffect(() => {
+    const syncFavoriteStatus = async () => {
+      const user = auth.currentUser;
+      if (user && spot.likedBy) {
+        const firebaseUid = user.uid;
+        setIsFavorite(spot.likedBy.includes(firebaseUid));
+      }
+    };
+    syncFavoriteStatus();
+  }, [spot.likedBy]);
 
   // Handle favorite toggle with backend API
   const handleFavoriteToggle = useCallback(
@@ -20,11 +30,13 @@ const SpotCard = ({ spot }) => {
 
       setLoadingFavorite(true);
       setError(null);
-       const user = auth.currentUser;
+      const user = auth.currentUser;
       if (!user) {
-        throw new Error("User is not authenticated");
+        setError("You must be logged in to like a spot.");
+        setLoadingFavorite(false);
+        return;
       }
-      const token = await user.getIdToken();// Retrieve the token from localStorage
+      const token = await user.getIdToken();
 
       if (!token) {
         setError('You must be logged in to like a spot.');
@@ -37,10 +49,10 @@ const SpotCard = ({ spot }) => {
           ? `/api/spots/${spot.id}/unlike`
           : `/api/spots/${spot.id}/like`;
 
-        console.log('Making request to:', url); // Log the request URL
+        console.log('Making request to:', url);
 
         await axios.post(url, {}, {
-          headers: { Authorization: `Bearer ${token}` }, // Include the token in the headers
+          headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
 
@@ -48,7 +60,8 @@ const SpotCard = ({ spot }) => {
         setLoadingFavorite(false);
       } catch (err) {
         console.error('Error updating like status:', err.response?.data || err.message);
-        setError('Failed to update like status.');
+        const errorMessage = err.response?.data?.error || 'Failed to update like status.';
+        setError(errorMessage);
         setLoadingFavorite(false);
       }
     },
@@ -133,7 +146,7 @@ SpotCard.propTypes = {
     reviews: PropTypes.array,
     description: PropTypes.string,
     distance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    isFavorite: PropTypes.bool,
+    likedBy: PropTypes.arrayOf(PropTypes.string), // Added likedBy
   }).isRequired,
 };
 

@@ -10,6 +10,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   // Handle logout
+    
   const handleLogout = useCallback(async () => {
     try {
       await logout();

@@ -8,6 +8,8 @@ const AITravelPlanner = () => {
     destination: '',
     days: '',
     interests: '',
+    budget: '',
+    startingpoint: '',
   });
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ const AITravelPlanner = () => {
     setPreferences((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission and fetch itinerary from backend
+  // Send form data to n8n Webhook
   const handlePlanTrip = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -27,11 +29,14 @@ const AITravelPlanner = () => {
     setItinerary(null);
 
     try {
-      const response = await axios.post('/api/ai-travel-planner', preferences); // Replace with your API endpoint
+      const response = await axios.post(
+        'https://projectmates.app.n8n.cloud/webhook-test/01c85105-266d-41ca-ab70-dd12c1bf7c63', // n8n Webhook URL
+        preferences
+      );
       setItinerary(response.data);
-      setLoading(false);
     } catch (err) {
       setError('Failed to generate itinerary. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -39,7 +44,13 @@ const AITravelPlanner = () => {
   // Reset form and close modal
   const handleClose = () => {
     setShowModal(false);
-    setPreferences({ destination: '', days: '', interests: '' });
+    setPreferences({
+      destination: '',
+      days: '',
+      interests: '',
+      budget: '',
+      startingpoint: '',
+    });
     setItinerary(null);
     setError(null);
   };
@@ -81,6 +92,18 @@ const AITravelPlanner = () => {
                 />
               </Form.Group>
 
+              <Form.Group className="mb-3" controlId="startingpoint">
+                <Form.Label>Starting Point</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="startingpoint"
+                  value={preferences.startingpoint}
+                  onChange={handleInputChange}
+                  placeholder="e.g., New York"
+                  required
+                />
+              </Form.Group>
+
               <Form.Group className="mb-3" controlId="days">
                 <Form.Label>Number of Days</Form.Label>
                 <Form.Control
@@ -89,6 +112,19 @@ const AITravelPlanner = () => {
                   value={preferences.days}
                   onChange={handleInputChange}
                   placeholder="e.g., 3"
+                  min="1"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="budget">
+                <Form.Label>Budget (in INR)</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="budget"
+                  value={preferences.budget}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 5000"
                   min="1"
                   required
                 />

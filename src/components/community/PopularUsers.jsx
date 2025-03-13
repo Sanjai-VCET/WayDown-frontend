@@ -10,18 +10,24 @@ const PopularUsers = ({ limit = 4 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [following, setFollowing] = useState(new Set());
-  const [user] = useAuthState(auth); // Get current user for auth token
+  const [user, userLoading, userError] = useAuthState(auth); // Added userError for debugging
 
   const fetchPopularUsers = useCallback(async () => {
+    if (!user) {
+      setError("Please log in to view popular explorers.");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const token = await auth.currentUser?.getIdToken();
-
-      console.log("🚀 Fetching popular users with token:", token ? "✅ Token Present" : "❌ No Token");
+      setError(null); // Clear previous errors
+      const token = await user.getIdToken();
+      console.log("🚀 Fetching popular users with token:", token); // Log full token for debugging (remove in production)
 
       const response = await axios.get("http://localhost:3000/api/users/popular", {
         params: { limit },
-        headers: token ? { Authorization: `Bearer ${token}` } : {}, // ✅ Ensure token is included only if available
+        headers: { Authorization: `Bearer ${token}` },
         timeout: 5000,
       });
 
@@ -29,17 +35,27 @@ const PopularUsers = ({ limit = 4 }) => {
       setUsers(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("❌ Error fetching popular users:", err.response?.data || err.message);
-      setError("Failed to load popular users: " + (err.response?.data?.message || err.message));
+      setError("Failed to load popular users: " + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [limit, user]);
 
   useEffect(() => {
+    if (userLoading) {
+      console.log("⏳ Auth state still loading...");
+      return;
+    }
+    if (userError) {
+      console.error("❌ Auth state error:", userError);
+      setError("Authentication error: " + userError.message);
+      setLoading(false);
+      return;
+    }
     fetchPopularUsers();
-  }, [fetchPopularUsers]);
+  }, [fetchPopularUsers, userLoading, userError]);
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <Card className="mb-4 shadow-sm">
         <Card.Body className="text-center">
@@ -75,8 +91,8 @@ const PopularUsers = ({ limit = 4 }) => {
               <ListGroup.Item key={user._id} className="px-0 py-2 border-bottom">
                 <div className="d-flex align-items-center">
                   <img
-                    src={user.profilePic || "/fallback-avatar.jpg"} // Match User model field
-                    alt={user.username} // Match User model field
+                    src={user.profilePic || "/fallback-avatar.jpg"}
+                    alt={user.username}
                     className="rounded-circle me-2"
                     width="40"
                     height="40"
@@ -91,7 +107,7 @@ const PopularUsers = ({ limit = 4 }) => {
                   <Button
                     variant={following.has(user._id) ? "primary" : "outline-primary"}
                     size="sm"
-                    disabled={!auth.currentUser} // Disable if not logged in
+                    disabled={!auth.currentUser}
                   >
                     {following.has(user._id) ? "Following" : "Follow"}
                   </Button>
