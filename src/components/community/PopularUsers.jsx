@@ -4,6 +4,14 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../firebase";
+import {
+  ExclamationTriangle,
+  ArrowRepeat,
+  Person,
+  PersonPlus,
+  PersonCheck,
+  ArrowRight,
+} from "react-bootstrap-icons"; // Import icons
 
 const PopularUsers = ({ limit = 4 }) => {
   const [users, setUsers] = useState([]);
@@ -14,7 +22,7 @@ const PopularUsers = ({ limit = 4 }) => {
 
   const fetchPopularUsers = useCallback(async () => {
     if (!user) {
-      setError("Please log in to view popular explorers.");
+      setError("Please bode in to view popular explorers.");
       setLoading(false);
       return;
     }
@@ -59,7 +67,7 @@ const PopularUsers = ({ limit = 4 }) => {
     return (
       <Card className="mb-4 shadow-sm">
         <Card.Body className="text-center">
-          <Spinner animation="border" size="sm" className="me-2" />
+          <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
           Loading popular explorers...
         </Card.Body>
       </Card>
@@ -70,12 +78,19 @@ const PopularUsers = ({ limit = 4 }) => {
     return (
       <Card className="mb-4 shadow-sm">
         <Card.Body className="text-center text-danger">
-          {error}
-          <div>
-            <button className="btn btn-link p-0 mt-2" onClick={fetchPopularUsers}>
-              Retry
-            </button>
+          <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+            <ExclamationTriangle size={20} /> {/* Add error icon */}
+            {error}
           </div>
+          <Button
+            variant="link"
+            className="p-0 mt-2"
+            onClick={fetchPopularUsers}
+            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+          >
+            <ArrowRepeat size={16} /> {/* Add retry icon */}
+            Retry
+          </Button>
         </Card.Body>
       </Card>
     );
@@ -90,14 +105,18 @@ const PopularUsers = ({ limit = 4 }) => {
             users.map((user) => (
               <ListGroup.Item key={user._id} className="px-0 py-2 border-bottom">
                 <div className="d-flex align-items-center">
-                  <img
-                    src={user.profilePic || "/fallback-avatar.jpg"}
-                    alt={user.username}
-                    className="rounded-circle me-2"
-                    width="40"
-                    height="40"
-                    onError={(e) => (e.target.src = "/fallback-avatar.jpg")}
-                  />
+                  {user.profilePic ? (
+                    <img
+                      src={user.profilePic}
+                      alt={user.username}
+                      className="rounded-circle me-2"
+                      width="40"
+                      height="40"
+                      onError={(e) => (e.target.src = "/fallback-avatar.jpg")}
+                    />
+                  ) : (
+                    <Person size={40} className="me-2 text-muted" /> // Add Person icon as fallback
+                  )}
                   <div className="me-auto">
                     <div className="fw-bold">{user.username}</div>
                     <small className="text-muted">
@@ -108,8 +127,19 @@ const PopularUsers = ({ limit = 4 }) => {
                     variant={following.has(user._id) ? "primary" : "outline-primary"}
                     size="sm"
                     disabled={!auth.currentUser}
+                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
                   >
-                    {following.has(user._id) ? "Following" : "Follow"}
+                    {following.has(user._id) ? (
+                      <>
+                        <PersonCheck size={16} /> {/* Add Following icon */}
+                        Following
+                      </>
+                    ) : (
+                      <>
+                        <PersonPlus size={16} /> {/* Add Follow icon */}
+                        Follow
+                      </>
+                    )}
                   </Button>
                 </div>
               </ListGroup.Item>
@@ -121,7 +151,13 @@ const PopularUsers = ({ limit = 4 }) => {
           )}
         </ListGroup>
         <div className="text-center mt-3">
-          <Button variant="link" className="text-decoration-none" onClick={fetchPopularUsers}>
+          <Button
+            variant="link"
+            className="text-decoration-none"
+            onClick={fetchPopularUsers}
+            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+          >
+            <ArrowRight size={16} /> {/* Add See More icon */}
             See More
           </Button>
         </div>

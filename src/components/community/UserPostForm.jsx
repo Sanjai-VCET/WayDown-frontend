@@ -4,6 +4,16 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../firebase";
+import {
+  ExclamationTriangle,
+  PencilSquare,
+  ChatText,
+  GeoAlt,
+  Hash,
+  Image,
+  Send,
+  XCircle,
+} from "react-bootstrap-icons"; // Import icons
 
 const UserPostForm = ({ onAddPost, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -90,7 +100,7 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
     return (
       <Card className="shadow-sm">
         <Card.Body className="text-center">
-          <Spinner animation="border" size="sm" className="me-2" />
+          <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
           Loading...
         </Card.Body>
       </Card>
@@ -101,7 +111,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
     return (
       <Card className="shadow-sm">
         <Card.Body className="text-center">
-          <Alert variant="danger">Please log in to create a post.</Alert>
+          <Alert variant="danger" className="d-flex align-items-center justify-content-center gap-2">
+            <ExclamationTriangle size={20} /> {/* Add no-user icon */}
+            Please log in to create a post.
+          </Alert>
         </Card.Body>
       </Card>
     );
@@ -113,14 +126,23 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
         <h5 className="mb-3">Share a Hidden Spot</h5>
 
         {error && (
-          <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          <Alert
+            variant="danger"
+            dismissible
+            onClose={() => setError(null)}
+            className="d-flex align-items-center gap-2"
+          >
+            <ExclamationTriangle size={20} /> {/* Add error icon */}
             {error}
           </Alert>
         )}
 
         <Form onSubmit={handleSubmit} noValidate>
           <Form.Group className="mb-3" controlId="postTitle">
-            <Form.Label>Title</Form.Label>
+            <Form.Label className="d-flex align-items-center gap-2">
+              <PencilSquare size={16} /> {/* Add title icon */}
+              Title
+            </Form.Label>
             <Form.Control
               type="text"
               name="title"
@@ -134,7 +156,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="postContent">
-            <Form.Label>Description</Form.Label>
+            <Form.Label className="d-flex align-items-center gap-2">
+              <ChatText size={16} /> {/* Add description icon */}
+              Description
+            </Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -151,7 +176,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="postLocation">
-                <Form.Label>Location</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <GeoAlt size={16} /> {/* Add location icon */}
+                  Location
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="location"
@@ -167,7 +195,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
 
             <Col md={6}>
               <Form.Group className="mb-3" controlId="postTags">
-                <Form.Label>Tags (comma separated)</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <Hash size={16} /> {/* Add tags icon */}
+                  Tags (comma separated)
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="tags"
@@ -181,7 +212,10 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
           </Row>
 
           <Form.Group className="mb-4" controlId="postImages">
-            <Form.Label>Upload Images</Form.Label>
+            <Form.Label className="d-flex align-items-center gap-2">
+              <Image size={16} /> {/* Add image upload icon */}
+              Upload Images
+            </Form.Label>
             <Form.Control
               type="file"
               onChange={handleImageChange}
@@ -193,17 +227,31 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
           </Form.Group>
 
           <div className="d-flex justify-content-end gap-2">
-            <Button variant="outline-secondary" onClick={onCancel} disabled={loading}>
+            <Button
+              variant="outline-secondary"
+              onClick={onCancel}
+              disabled={loading}
+              style={{ display: "flex", alignItems: "center", gap: "5px" }}
+            >
+              <XCircle size={16} /> {/* Add cancel icon */}
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={loading}>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={loading}
+              style={{ display: "flex", alignItems: "center", gap: "5px" }}
+            >
               {loading ? (
                 <>
                   <Spinner animation="border" size="sm" className="me-2" />
                   Sharing...
                 </>
               ) : (
-                "Share Post"
+                <>
+                  <Send size={16} /> {/* Add submit icon */}
+                  Share Post
+                </>
               )}
             </Button>
           </div>

@@ -1,9 +1,16 @@
-import { useState, useCallback, useEffect } from 'react'; // Added useEffect
+import { useState, useCallback, useEffect } from 'react';
 import { Card, Badge, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { auth } from "../../../firebase"; 
+import { auth } from '../../../firebase';
+import {
+  HandThumbsUp,
+  HandThumbsUpFill,
+  GeoAlt,
+  StarFill,
+  ArrowRightCircle,
+} from 'react-bootstrap-icons'; // Import icons
 
 const SpotCard = ({ spot }) => {
   const [isFavorite, setIsFavorite] = useState(false); // Default to false
@@ -32,7 +39,7 @@ const SpotCard = ({ spot }) => {
       setError(null);
       const user = auth.currentUser;
       if (!user) {
-        setError("You must be logged in to like a spot.");
+        setError('You must be logged in to like a spot.');
         setLoadingFavorite(false);
         return;
       }
@@ -51,10 +58,14 @@ const SpotCard = ({ spot }) => {
 
         console.log('Making request to:', url);
 
-        await axios.post(url, {}, {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
-        });
+        await axios.post(
+          url,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 5000,
+          }
+        );
 
         setIsFavorite((prev) => !prev); // Toggle the favorite state
         setLoadingFavorite(false);
@@ -69,7 +80,10 @@ const SpotCard = ({ spot }) => {
   );
 
   // Convert location to string if it's an object
-  const locationString = typeof spot.location === 'object' ? spot.location.coordinates.join(', ') : spot.location;
+  const locationString =
+    typeof spot.location === 'object'
+      ? spot.location.coordinates.join(', ')
+      : spot.location;
 
   return (
     <Card className="h-100 spot-card">
@@ -94,8 +108,10 @@ const SpotCard = ({ spot }) => {
         >
           {loadingFavorite ? (
             <Spinner animation="border" size="sm" />
+          ) : isFavorite ? (
+            <HandThumbsUpFill size={16} /> // Use filled thumbs-up for favorited
           ) : (
-            <i className={`bi ${isFavorite ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`} />
+            <HandThumbsUp size={16} /> // Use outline thumbs-up for not favorited
           )}
         </Button>
       </div>
@@ -103,11 +119,11 @@ const SpotCard = ({ spot }) => {
       <Card.Body>
         <Card.Title>{spot.name}</Card.Title>
         <div className="d-flex align-items-center mb-2">
-          <i className="bi bi-geo-alt text-primary me-1" />
+          <GeoAlt size={16} className="text-primary me-1" /> {/* Replace bi-geo-alt */}
           <small className="text-muted">{locationString || 'Unknown location'}</small>
         </div>
         <div className="d-flex align-items-center mb-2">
-          <i className="bi bi-star-fill text-warning me-1" />
+          <StarFill size={16} className="text-warning me-1" /> {/* Replace bi-star-fill */}
           <span>{spot.rating?.toFixed(1) || 'N/A'}</span>
           <small className="text-muted ms-1">
             ({spot.reviews?.length || 0} reviews)
@@ -122,7 +138,7 @@ const SpotCard = ({ spot }) => {
       <Card.Footer className="bg-white border-top-0">
         <div className="d-flex justify-content-between align-items-center">
           <small className="text-muted">
-            <i className="bi bi-arrow-right-circle me-1" />
+            <ArrowRightCircle size={16} className="me-1" /> {/* Replace bi-arrow-right-circle */}
             {spot.distance ? `${spot.distance} km away` : 'Distance unknown'}
           </small>
           <Link to={`/spots/${spot.id}`} className="btn btn-sm btn-outline-primary">

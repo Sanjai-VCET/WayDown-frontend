@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Alert, Row, Col } from "react-bootstrap";
+import { Spinner, Alert, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../firebase";
 import SpotCard from "./SpotCard"; // Ensure correct import path
+import { ExclamationTriangle, Person, InfoCircle } from "react-bootstrap-icons"; // Import icons
 
 const RecommendationSection = () => {
   const [recommendations, setRecommendations] = useState([]);
@@ -62,15 +63,15 @@ const RecommendationSection = () => {
       {/* Loading state */}
       {loading && (
         <div className="text-center py-4">
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <Spinner size={24} className="me-2" /> {/* Use react-bootstrap-icons Spinner */}
+          Loading recommendations...
         </div>
       )}
 
       {/* Error state */}
       {error && (
-        <Alert variant="danger" className="mb-3">
+        <Alert variant="danger" className="mb-3 d-flex align-items-center">
+          <ExclamationTriangle size={20} className="me-2" /> {/* Add error icon */}
           {error}
         </Alert>
       )}
@@ -78,11 +79,17 @@ const RecommendationSection = () => {
       {/* Recommendations content */}
       {!user ? (
         <div className="text-center mt-4">
-          <p>Please log in to see personalized recommendations.</p>
+          <p className="text-muted d-flex align-items-center justify-content-center gap-2">
+            <Person size={20} /> {/* Add no-user icon */}
+            Please log in to see personalized recommendations.
+          </p>
         </div>
       ) : recommendations.length === 0 ? (
         <div className="text-center mt-4">
-          <p>No recommendations available.</p>
+          <p className="text-muted d-flex align-items-center justify-content-center gap-2">
+            <InfoCircle size={20} /> {/* Add no-recommendations icon */}
+            No recommendations available.
+          </p>
         </div>
       ) : (
         <>

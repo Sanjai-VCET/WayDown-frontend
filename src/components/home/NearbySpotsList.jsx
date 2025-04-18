@@ -3,6 +3,7 @@ import { Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import SpotCard from './SpotCard';
+import { ArrowRepeat, PlusCircle } from 'react-bootstrap-icons'; // Import icons
 
 const NearbySpotsList = ({ userLocation }) => {
   const [spots, setSpots] = useState([]);
@@ -103,7 +104,13 @@ const NearbySpotsList = ({ userLocation }) => {
       <div className="text-center py-5">
         <Alert variant="danger" className="mb-4">
           {error}
-          <Button variant="link" onClick={() => fetchSpots(1)} className="p-0 ms-2">
+          <Button
+            variant="link"
+            onClick={() => fetchSpots(1)}
+            className="p-0 ms-2"
+            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+          >
+            <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
           </Button>
         </Alert>
@@ -135,6 +142,7 @@ const NearbySpotsList = ({ userLocation }) => {
             variant="primary"
             onClick={handleLoadMore}
             disabled={loadingMore}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: '0 auto' }}
           >
             {loadingMore ? (
               <>
@@ -142,7 +150,10 @@ const NearbySpotsList = ({ userLocation }) => {
                 Loading...
               </>
             ) : (
-              'Load More'
+              <>
+                <PlusCircle size={16} /> {/* Add load more icon */}
+                Load More
+              </>
             )}
           </Button>
         </div>

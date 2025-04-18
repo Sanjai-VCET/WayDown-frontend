@@ -3,6 +3,7 @@ import { InputGroup, Form, Button, Spinner, ListGroup, Alert } from 'react-boots
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import { Search, ChevronRight, ExclamationTriangle, ArrowRepeat } from 'react-bootstrap-icons'; // Import icons
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
@@ -67,7 +68,7 @@ const SearchBar = ({ onSearch }) => {
           timeout: 5000,
         });
         const searchResults = response.data;
-        // Pass results to parent (ensure it’s an array or structured data)
+        // Pass results to parent (ensure it's an array or structured data)
         onSearch(Array.isArray(searchResults) ? searchResults : searchResults.spots || []);
       } catch (err) {
         console.error('Error during search:', err.response?.data || err.message);
@@ -102,7 +103,7 @@ const SearchBar = ({ onSearch }) => {
           {loading ? (
             <Spinner animation="border" size="sm" aria-label="Loading" />
           ) : (
-            <i className="bi bi-search" aria-hidden="true"></i>
+            <Search size={16} aria-hidden="true" />
           )}
         </InputGroup.Text>
         <Form.Control
@@ -128,8 +129,9 @@ const SearchBar = ({ onSearch }) => {
               key={index}
               action
               onClick={() => handleSuggestionClick(suggestion)}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
             >
+              <ChevronRight size={12} /> {/* Add ChevronRight icon to suggestions */}
               {suggestion}
             </ListGroup.Item>
           ))}
@@ -138,9 +140,22 @@ const SearchBar = ({ onSearch }) => {
 
       {/* Error message */}
       {error && (
-        <Alert variant="danger" className="small mt-1" dismissible onClose={() => setError(null)}>
+        <Alert
+          variant="danger"
+          className="small mt-1 d-flex align-items-center"
+          dismissible
+          on altında
+         ={() => setError(null)}
+        >
+          <ExclamationTriangle size={16} className="me-2" /> {/* Add error icon */}
           {error}
-          <Button variant="link" onClick={handleSubmit} className="p-0 ms-2">
+          <Button
+            variant="link"
+            onClick={handleSubmit}
+            className="p-0 ms-2"
+            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+          >
+            <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
           </Button>
         </Alert>

@@ -1,9 +1,16 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Card, Button, Spinner } from "react-bootstrap";
+import { Card, Button, Spinner } from "react-bootstrap"; // Import Spinner from react-bootstrap
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { auth } from "../../../firebase"; // Adjust the import path according to your project structure
 import PropTypes from "prop-types";
+import {
+  StarFill,
+  ChevronLeft,
+  ChevronRight,
+  ExclamationTriangle,
+  ArrowRepeat,
+} from "react-bootstrap-icons"; // Remove Spinner import
 
 const TrendingSpotsCarousel = ({ limit = 5 }) => {
   const [spots, setSpots] = useState([]);
@@ -81,7 +88,7 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
   if (loading) {
     return (
       <div className="text-center py-5">
-        <Spinner animation="border" size="sm" className="me-2" />
+        <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
         Loading trending spots...
       </div>
     );
@@ -91,12 +98,19 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
   if (error) {
     return (
       <div className="text-center py-5 text-danger">
-        {error}
-        <div>
-          <button className="btn btn-link p-0 mt-2" onClick={fetchTrendingSpots}>
-            Retry
-          </button>
+        <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+          <ExclamationTriangle size={20} />
+          {error}
         </div>
+        <Button
+          variant="link"
+          className="p-0 mt-2"
+          onClick={fetchTrendingSpots}
+          style={{ display: "flex", alignItems: "center", gap: "5px" }}
+        >
+          <ArrowRepeat size={16} />
+          Retry
+        </Button>
       </div>
     );
   }
@@ -136,7 +150,7 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
               <Card.Body>
                 <Card.Title className="mb-1">{spot.name}</Card.Title>
                 <div className="d-flex align-items-center mb-2">
-                  <i className="bi bi-star-fill text-warning me-1" />
+                  <StarFill size={16} className="text-warning me-1" />
                   <span>{spot.rating.toFixed(1)}</span>
                   <small className="text-muted ms-1">
                     ({spot.reviews.length} reviews)
@@ -159,7 +173,7 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
         onClick={() => scroll("left")}
         disabled={loading}
       >
-        <i className="bi bi-chevron-left" />
+        <ChevronLeft size={16} />
       </Button>
       <Button
         variant="light"
@@ -168,7 +182,7 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
         onClick={() => scroll("right")}
         disabled={loading}
       >
-        <i className="bi bi-chevron-right" />
+        <ChevronRight size={16} />
       </Button>
     </div>
   );

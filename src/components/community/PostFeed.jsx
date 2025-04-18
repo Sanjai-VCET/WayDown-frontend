@@ -4,6 +4,15 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../firebase";
+import {
+  Heart,
+  HeartFill,
+  Chat,
+  Share,
+  ExclamationTriangle,
+  ArrowRepeat,
+  InfoCircle,
+} from "react-bootstrap-icons"; // Import icons
 
 const PostFeed = ({ onLike, onAddComment }) => {
   const [posts, setPosts] = useState([]);
@@ -85,7 +94,7 @@ const PostFeed = ({ onLike, onAddComment }) => {
   if (loading || userLoading) {
     return (
       <div className="text-center py-5">
-        <Spinner animation="border" size="sm" className="me-2" />
+        <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
         Loading posts...
       </div>
     );
@@ -95,9 +104,16 @@ const PostFeed = ({ onLike, onAddComment }) => {
   if (error) {
     return (
       <div className="text-center py-5">
-        <Alert variant="danger">
+        <Alert variant="danger" className="d-flex align-items-center justify-content-center gap-2">
+          <ExclamationTriangle size={20} /> {/* Add error icon */}
           {error}
-          <Button variant="link" onClick={fetchPosts} className="p-0 ms-2">
+          <Button
+            variant="link"
+            onClick={fetchPosts}
+            className="p-0 ms-2"
+            style={{ display: "flex", alignItems: "center", gap: "5px" }}
+          >
+            <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
           </Button>
         </Alert>
@@ -149,10 +165,15 @@ const PostFeed = ({ onLike, onAddComment }) => {
                     variant={post.likes.includes(user?.uid) ? "danger" : "outline-primary"}
                     size="sm"
                     className="me-2"
-                    onClick={() => handleLike(post._id)} // Use onLike via handleLike
+                    onClick={() => handleLike(post._id)}
                     disabled={!user}
+                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
                   >
-                    <i className="bi bi-heart me-1" />
+                    {post.likes.includes(user?.uid) ? (
+                      <HeartFill size={16} /> // Use filled heart for liked
+                    ) : (
+                      <Heart size={16} /> // Use outline heart for unliked
+                    )}
                     {post.likes.length}
                   </Button>
                   <Button
@@ -162,13 +183,19 @@ const PostFeed = ({ onLike, onAddComment }) => {
                       setActiveCommentPost(activeCommentPost === post._id ? null : post._id)
                     }
                     disabled={!user}
+                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
                   >
-                    <i className="bi bi-chat me-1" />
+                    <Chat size={16} /> {/* Replace bi-chat */}
                     {post.comments.length}
                   </Button>
                 </div>
-                <Button variant="outline-secondary" size="sm">
-                  <i className="bi bi-share" />
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                >
+                  <Share size={16} /> {/* Replace bi-share */}
+                  Share
                 </Button>
               </div>
 
@@ -219,7 +246,10 @@ const PostFeed = ({ onLike, onAddComment }) => {
         ))
       ) : (
         <div className="text-center py-5">
-          <p className="text-muted">No posts yet. Be the first to share a hidden spot!</p>
+          <p className="text-muted d-flex align-items-center justify-content-center gap-2">
+            <InfoCircle size={20} /> {/* Add empty state icon */}
+            No posts yet. Be the first to share a hidden spot!
+          </p>
         </div>
       )}
     </div>

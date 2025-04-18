@@ -4,6 +4,7 @@ import L from "leaflet";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { Button } from "react-bootstrap";
+import { GeoAltFill } from "react-bootstrap-icons"; // Import the icon
 
 // Fix for Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -116,9 +117,13 @@ const LocateControl = ({ onLocate }) => {
         top: "10px",
         right: "10px",
         zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        gap: "5px",
       }}
       aria-label="Locate my current position"
     >
+      <GeoAltFill size={16} /> {/* Add the GeoAltFill icon */}
       Locate Me
     </Button>
   );
@@ -281,12 +286,7 @@ const InteractiveMap = ({ spots: initialSpots }) => {
               <div>
                 <h6>{marker.name}</h6>
                 <p>{marker.description}</p>
-                <a
-                  href={`/spots/${marker.id}`}
-              
-                >
-                  View Details
-                </a>
+                <a href={`/spots/${marker.id}`}>View Details</a>
               </div>
             </Popup>
           </Marker>
@@ -294,10 +294,7 @@ const InteractiveMap = ({ spots: initialSpots }) => {
       </MapContainer>
 
       {/* Locate Me Button */}
-      <LocateControl
-        onLocate={locateUser}
-        disabled={isLocating}
-      />
+      <LocateControl onLocate={locateUser} disabled={isLocating} />
     </div>
   );
 };
