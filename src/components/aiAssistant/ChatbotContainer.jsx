@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, Spinner, Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
+import {
+  ChatDots,
+  Send,
+  ExclamationTriangle,
+  Person,
+  Robot,
+} from "react-bootstrap-icons"; // Import icons
 
 const ChatbotContainer = () => {
   const [messages, setMessages] = useState([
@@ -64,8 +71,8 @@ const ChatbotContainer = () => {
   return (
     <Card className="shadow-sm">
       <Card.Body>
-        <h5 className="mb-3">
-          <i className="bi bi-chat-dots text-primary me-2"></i>
+        <h5 className="mb-3 d-flex align-items-center gap-2">
+          <ChatDots size={20} className="text-primary" /> {/* Replace bi-chat-dots */}
           AI Chatbot
         </h5>
         <div
@@ -80,27 +87,40 @@ const ChatbotContainer = () => {
               className={`message-bubble mb-3 ${message.sender === "user" ? "text-end" : ""}`}
             >
               <div
-                className={`d-inline-block p-3 rounded ${
+                className={`d-inline-flex align-items-center p-3 rounded ${
                   message.sender === "user" ? "bg-primary text-white" : "bg-light text-dark"
                 }`}
+                style={{ gap: "10px" }}
               >
-                <p className="mb-1">{message.text}</p>
-                <small className="text-muted">
-                  {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </small>
+                {message.sender === "user" ? (
+                  <Person size={16} /> // Add user icon
+                ) : (
+                  <Robot size={16} /> // Add bot icon
+                )}
+                <div>
+                  <p className="mb-1">{message.text}</p>
+                  <small className="text-muted">
+                    {new Date(message.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </small>
+                </div>
               </div>
             </div>
           ))}
           {loading && (
-            <div className="text-muted d-flex align-items-center">
-              <span className="me-2">AI is thinking...</span>
+            <div className="text-muted d-flex align-items-center gap-2">
+              <Robot size={16} /> {/* Add bot icon for loading */}
+              <span>AI is thinking...</span>
               <Spinner animation="border" size="sm" />
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
         {error && (
-          <Alert variant="danger" className="mt-2 text-center">
+          <Alert variant="danger" className="mt-2 text-center d-flex align-items-center justify-content-center gap-2">
+            <ExclamationTriangle size={16} /> {/* Add error icon */}
             {error}
           </Alert>
         )}
@@ -113,8 +133,15 @@ const ChatbotContainer = () => {
               onChange={(e) => setInputMessage(e.target.value)}
               disabled={loading}
             />
-            <Button type="submit" variant="primary" className="ms-2" disabled={loading || !inputMessage.trim()}>
-              <i className="bi bi-send"></i>
+            <Button
+              type="submit"
+              variant="primary"
+              className="ms-2"
+              disabled={loading || !inputMessage.trim()}
+              style={{ display: "flex", alignItems: "center", gap: "5px" }}
+            >
+              <Send size={16} /> {/* Replace bi-send */}
+              Send
             </Button>
           </div>
         </Form>

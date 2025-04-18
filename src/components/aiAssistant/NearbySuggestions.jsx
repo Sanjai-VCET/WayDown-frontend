@@ -1,9 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import { Card, ListGroup, Spinner } from "react-bootstrap";
+import { Card, ListGroup, Spinner, Button } from "react-bootstrap"; // Added Button for retry
 import { Link } from "react-router-dom";
 import api from "../../api/api"; // Import configured Axios instance
 import { useAuth } from "../../context/AuthContext"; // Use `useAuth` instead of `useContext(AuthProvider)`
 import PropTypes from "prop-types";
+import {
+  GeoAlt,
+  ExclamationTriangle,
+  ArrowRepeat,
+  InfoCircle,
+  Map,
+} from "react-bootstrap-icons"; // Import icons
 
 const NearbySuggestions = ({ userLocation }) => {
   const { token } = useAuth(); // Correct way to access auth context
@@ -39,7 +46,7 @@ const NearbySuggestions = ({ userLocation }) => {
     return (
       <Card className="mb-3 shadow-sm">
         <Card.Body className="text-center">
-          <Spinner animation="border" size="sm" className="me-2" />
+          <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
           Loading nearby spots...
         </Card.Body>
       </Card>
@@ -50,12 +57,19 @@ const NearbySuggestions = ({ userLocation }) => {
     return (
       <Card className="mb-3 shadow-sm">
         <Card.Body className="text-center text-danger">
-          {error}
-          <div>
-            <button className="btn btn-link p-0 mt-2" onClick={fetchSuggestions}>
-              Retry
-            </button>
+          <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+            <ExclamationTriangle size={20} /> {/* Add error icon */}
+            {error}
           </div>
+          <Button
+            variant="link"
+            className="p-0 mt-2"
+            onClick={fetchSuggestions}
+            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+          >
+            <ArrowRepeat size={16} /> {/* Add retry icon */}
+            Retry
+          </Button>
         </Card.Body>
       </Card>
     );
@@ -64,8 +78,8 @@ const NearbySuggestions = ({ userLocation }) => {
   return (
     <Card className="mb-3 shadow-sm">
       <Card.Body>
-        <Card.Title>
-          <i className="bi bi-geo-alt text-primary me-2"></i>
+        <Card.Title className="d-flex align-items-center gap-2">
+          <GeoAlt size={20} className="text-primary" /> {/* Replace bi-geo-alt */}
           Nearby Hidden Spots
         </Card.Title>
         <ListGroup variant="flush">
@@ -73,7 +87,11 @@ const NearbySuggestions = ({ userLocation }) => {
             suggestions.map((spot) => (
               <ListGroup.Item key={spot._id} className="px-0 py-2 border-bottom">
                 <div className="d-flex justify-content-between align-items-center">
-                  <Link to={`/spots/${spot._id}`} className="text-decoration-none text-dark">
+                  <Link
+                    to={`/spots/${spot._id}`}
+                    className="text-decoration-none text-dark d-flex align-items-center gap-2"
+                  >
+                    <Map size={16} /> {/* Add map icon for suggestions */}
                     {spot.name}
                   </Link>
                   <span className="text-muted small">
@@ -83,7 +101,8 @@ const NearbySuggestions = ({ userLocation }) => {
               </ListGroup.Item>
             ))
           ) : (
-            <ListGroup.Item className="px-0 py-2 text-muted">
+            <ListGroup.Item className="px-0 py-2 text-muted d-flex align-items-center gap-2">
+              <InfoCircle size={16} /> {/* Add empty state icon */}
               No nearby spots found.
             </ListGroup.Item>
           )}

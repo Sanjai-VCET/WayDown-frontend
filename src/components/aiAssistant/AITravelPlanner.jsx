@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { Card, Button, Form, Modal, ListGroup, Spinner } from 'react-bootstrap';
+import { Card, Button, Form, Modal, ListGroup, Spinner, Alert } from 'react-bootstrap'; // Added Alert for error state
 import axios from 'axios';
+import {
+  CalendarCheck,
+  ExclamationTriangle,
+  GeoAlt,
+  Calendar,
+  CurrencyRupee,
+  ListUl,
+  Send,
+  XCircle,
+  ArrowRepeat,
+} from 'react-bootstrap-icons'; // Import icons
 
 const AITravelPlanner = () => {
   const [showModal, setShowModal] = useState(false);
@@ -59,14 +70,20 @@ const AITravelPlanner = () => {
     <>
       <Card className="mb-3 shadow-sm">
         <Card.Body>
-          <Card.Title>
-            <i className="bi bi-calendar-check text-primary me-2"></i>
+          <Card.Title className="d-flex align-items-center gap-2">
+            <CalendarCheck size={20} className="text-primary" /> {/* Replace bi-calendar-check */}
             AI Travel Planner
           </Card.Title>
           <Card.Text>
             Let me create a personalized itinerary based on your preferences and available time.
           </Card.Text>
-          <Button variant="outline-primary" size="sm" onClick={() => setShowModal(true)}>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => setShowModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+          >
+            <Send size={16} /> {/* Add icon to Plan My Trip button */}
             Plan My Trip
           </Button>
         </Card.Body>
@@ -81,7 +98,10 @@ const AITravelPlanner = () => {
           {!itinerary ? (
             <Form onSubmit={handlePlanTrip}>
               <Form.Group className="mb-3" controlId="destination">
-                <Form.Label>Destination</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <GeoAlt size={16} /> {/* Add destination icon */}
+                  Destination
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="destination"
@@ -93,7 +113,10 @@ const AITravelPlanner = () => {
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="startingpoint">
-                <Form.Label>Starting Point</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <GeoAlt size={16} /> {/* Add starting point icon */}
+                  Starting Point
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="startingpoint"
@@ -105,7 +128,10 @@ const AITravelPlanner = () => {
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="days">
-                <Form.Label>Number of Days</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <Calendar size={16} /> {/* Add days icon */}
+                  Number of Days
+                </Form.Label>
                 <Form.Control
                   type="number"
                   name="days"
@@ -118,7 +144,10 @@ const AITravelPlanner = () => {
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="budget">
-                <Form.Label>Budget (in INR)</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <CurrencyRupee size={16} /> {/* Add budget icon */}
+                  Budget (in INR)
+                </Form.Label>
                 <Form.Control
                   type="number"
                   name="budget"
@@ -131,7 +160,10 @@ const AITravelPlanner = () => {
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="interests">
-                <Form.Label>Interests</Form.Label>
+                <Form.Label className="d-flex align-items-center gap-2">
+                  <ListUl size={16} /> {/* Add interests icon */}
+                  Interests
+                </Form.Label>
                 <Form.Control
                   as="textarea"
                   name="interests"
@@ -143,16 +175,29 @@ const AITravelPlanner = () => {
                 />
               </Form.Group>
 
-              {error && <p className="text-danger">{error}</p>}
+              {error && (
+                <Alert variant="danger" className="d-flex align-items-center gap-2">
+                  <ExclamationTriangle size={16} /> {/* Add error icon */}
+                  {error}
+                </Alert>
+              )}
 
-              <Button variant="primary" type="submit" disabled={loading}>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={loading}
+                style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+              >
                 {loading ? (
                   <>
                     <Spinner as="span" animation="border" size="sm" className="me-2" />
                     Generating...
                   </>
                 ) : (
-                  'Generate Itinerary'
+                  <>
+                    <Send size={16} /> {/* Add submit icon */}
+                    Generate Itinerary
+                  </>
                 )}
               </Button>
             </Form>
@@ -170,11 +215,21 @@ const AITravelPlanner = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button
+            variant="secondary"
+            onClick={handleClose}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+          >
+            <XCircle size={16} /> {/* Add close icon */}
             Close
           </Button>
           {itinerary && (
-            <Button variant="primary" onClick={() => setItinerary(null)}>
+            <Button
+              variant="primary"
+              onClick={() => setItinerary(null)}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+            >
+              <ArrowRepeat size={16} /> {/* Add plan another trip icon */}
               Plan Another Trip
             </Button>
           )}
