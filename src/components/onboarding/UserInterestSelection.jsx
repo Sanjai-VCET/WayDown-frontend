@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
-import { Button, Form, Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../../firebase';
+import { useState, useCallback, useEffect } from "react";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
+import axios from "axios";
+import PropTypes from "prop-types";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../../firebase";
 
 const UserInterestSelection = ({ onNext, onSkip }) => {
   const [selectedInterests, setSelectedInterests] = useState([]);
@@ -14,33 +14,36 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
 
   // Static mapping for icons (since backend doesn't provide them)
   const iconMapping = {
-    Adventure: '🏞️',
-    Temples: '🛕',
-    Waterfalls: '💧',
-    Beaches: '🏖️',
-    Mountains: '⛰️',
-    Historical: '🏛️',
-    Nature: '🌳',
-    Urban: '🏙️',
-    Foodie: '🍴',
-    Wildlife: '🦒',
+    Adventure: "🏞️",
+    Temples: "🛕",
+    Waterfalls: "💧",
+    Beaches: "🏖️",
+    Mountains: "⛰️",
+    Historical: "🏛️",
+    Nature: "🌳",
+    Urban: "🏙️",
+    Foodie: "🍴",
+    Wildlife: "🦒",
   };
 
   // Fetch interest categories from backend
   const fetchInterestCategories = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/interests/categories', {
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        "https://waydown-backend.onrender.com/api/interests/categories",
+        {
+          timeout: 5000,
+        }
+      );
       // Transform flat array into objects with id, name, and icon
       const categories = (response.data || []).map((name, index) => ({
         id: index.toString(),
         name,
-        icon: iconMapping[name] || '🌐', // Fallback icon
+        icon: iconMapping[name] || "🌐", // Fallback icon
       }));
       setInterestCategories(categories);
     } catch (err) {
-      setError('Failed to load interest categories.');
+      setError("Failed to load interest categories.");
     }
   }, []);
 
@@ -49,20 +52,23 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
     if (!user) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error('Authentication token not found.');
+        throw new Error("Authentication token not found.");
       }
 
-      const response = await axios.get(`http://localhost:3000/api/users/${user.uid}/interests`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        `https://waydown-backend.onrender.com/api/users/${user.uid}/interests`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          timeout: 5000,
+        }
+      );
       setSelectedInterests(response.data || []); // Backend returns a flat array
     } catch (err) {
-      setError('Failed to load your interests.');
+      setError("Failed to load your interests.");
     }
   }, [user]);
 
@@ -71,7 +77,10 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
     const loadData = async () => {
       setLoading(true);
       try {
-        await Promise.all([fetchInterestCategories(), user && fetchInterests()]);
+        await Promise.all([
+          fetchInterestCategories(),
+          user && fetchInterests(),
+        ]);
       } finally {
         setLoading(false);
       }
@@ -96,7 +105,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
   // Handle next step with backend save
   const handleNext = useCallback(async () => {
     if (!user) {
-      setError('You must be logged in to save interests.');
+      setError("You must be logged in to save interests.");
       return;
     }
 
@@ -104,13 +113,13 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error('Authentication token not found.');
+        throw new Error("Authentication token not found.");
       }
 
       await axios.post(
-        `http://localhost:3000/api/users/${user.uid}/interests`,
+        `https://waydown-backend.onrender.com/api/users/${user.uid}/interests`,
         { interests: selectedInterests },
         {
           headers: {
@@ -122,7 +131,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
       setLoading(false);
       onNext(selectedInterests);
     } catch (err) {
-      setError('Failed to save your interests. Please try again.');
+      setError("Failed to save your interests. Please try again.");
       setLoading(false);
     }
   }, [user, selectedInterests, onNext]);
@@ -150,7 +159,11 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
       <div className="text-center py-5">
         <Alert variant="danger" className="mb-4">
           {error}
-          <Button variant="link" onClick={() => fetchInterestCategories()} className="p-0 ms-2">
+          <Button
+            variant="link"
+            onClick={() => fetchInterestCategories()}
+            className="p-0 ms-2"
+          >
             Retry
           </Button>
         </Alert>
@@ -180,11 +193,11 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
               <div
                 className={`interest-item p-3 rounded text-center ${
                   selectedInterests.includes(category.name)
-                    ? 'selected bg-light border border-primary'
-                    : 'border'
+                    ? "selected bg-light border border-primary"
+                    : "border"
                 }`}
                 onClick={() => handleInterestToggle(category.name)}
-                style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
+                style={{ cursor: loading ? "not-allowed" : "pointer" }}
                 role="button"
                 aria-pressed={selectedInterests.includes(category.name)}
               >
@@ -209,7 +222,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
               Saving...
             </>
           ) : (
-            'Continue'
+            "Continue"
           )}
         </Button>
 

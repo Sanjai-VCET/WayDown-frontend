@@ -33,17 +33,26 @@ const PopularUsers = ({ limit = 4 }) => {
       const token = await user.getIdToken();
       console.log("🚀 Fetching popular users with token:", token); // Log full token for debugging (remove in production)
 
-      const response = await axios.get("http://localhost:3000/api/users/popular", {
-        params: { limit },
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        "https://waydown-backend.onrender.com/api/users/popular",
+        {
+          params: { limit },
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 5000,
+        }
+      );
 
       console.log("✅ Popular users fetched:", response.data);
       setUsers(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-      console.error("❌ Error fetching popular users:", err.response?.data || err.message);
-      setError("Failed to load popular users: " + (err.response?.data?.error || err.message));
+      console.error(
+        "❌ Error fetching popular users:",
+        err.response?.data || err.message
+      );
+      setError(
+        "Failed to load popular users: " +
+          (err.response?.data?.error || err.message)
+      );
     } finally {
       setLoading(false);
     }
@@ -67,7 +76,8 @@ const PopularUsers = ({ limit = 4 }) => {
     return (
       <Card className="mb-4 shadow-sm">
         <Card.Body className="text-center">
-          <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
+          <Spinner animation="border" size="sm" className="me-2" />{" "}
+          {/* Use Bootstrap Spinner */}
           Loading popular explorers...
         </Card.Body>
       </Card>
@@ -86,7 +96,12 @@ const PopularUsers = ({ limit = 4 }) => {
             variant="link"
             className="p-0 mt-2"
             onClick={fetchPopularUsers}
-            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              margin: "0 auto",
+            }}
           >
             <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
@@ -103,7 +118,10 @@ const PopularUsers = ({ limit = 4 }) => {
         <ListGroup variant="flush">
           {users.length > 0 ? (
             users.map((user) => (
-              <ListGroup.Item key={user._id} className="px-0 py-2 border-bottom">
+              <ListGroup.Item
+                key={user._id}
+                className="px-0 py-2 border-bottom"
+              >
                 <div className="d-flex align-items-center">
                   {user.profilePic ? (
                     <img
@@ -124,10 +142,16 @@ const PopularUsers = ({ limit = 4 }) => {
                     </small>
                   </div>
                   <Button
-                    variant={following.has(user._id) ? "primary" : "outline-primary"}
+                    variant={
+                      following.has(user._id) ? "primary" : "outline-primary"
+                    }
                     size="sm"
                     disabled={!auth.currentUser}
-                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                    }}
                   >
                     {following.has(user._id) ? (
                       <>
@@ -155,7 +179,12 @@ const PopularUsers = ({ limit = 4 }) => {
             variant="link"
             className="text-decoration-none"
             onClick={fetchPopularUsers}
-            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              margin: "0 auto",
+            }}
           >
             <ArrowRight size={16} /> {/* Add See More icon */}
             See More

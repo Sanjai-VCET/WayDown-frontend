@@ -47,7 +47,7 @@ const LoginForm = ({ onFormTypeChange }) => {
 
         // Send token to backend to ensure user data is synced
         const response = await fetch(
-          "http://localhost:3000/api/auth/ensure-user",
+          "https://waydown-backend.onrender.com/api/auth/ensure-user",
           {
             method: "POST",
             headers: {

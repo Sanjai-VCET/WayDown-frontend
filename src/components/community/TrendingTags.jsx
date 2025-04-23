@@ -21,15 +21,21 @@ const TrendingTags = ({ limit = 10 }) => {
   const fetchTrendingTags = useCallback(async () => {
     try {
       const token = await auth.currentUser?.getIdToken();
-      const response = await axios.get("http://localhost:3000/api/community/tags/trending", {
-        params: { limit },
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        "https://waydown-backend.onrender.com/api/community/tags/trending",
+        {
+          params: { limit },
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 5000,
+        }
+      );
       setTags(response.data || []);
       setLoading(false);
     } catch (err) {
-      setError("Failed to load trending tags: " + (err.response?.data?.message || err.message));
+      setError(
+        "Failed to load trending tags: " +
+          (err.response?.data?.message || err.message)
+      );
       setLoading(false);
     }
   }, [limit]);
@@ -42,7 +48,8 @@ const TrendingTags = ({ limit = 10 }) => {
     return (
       <Card className="shadow-sm">
         <Card.Body className="text-center">
-          <Spinner animation="border" size="sm" className="me-2" /> {/* Use Bootstrap Spinner */}
+          <Spinner animation="border" size="sm" className="me-2" />{" "}
+          {/* Use Bootstrap Spinner */}
           Loading trending tags...
         </Card.Body>
       </Card>
@@ -61,7 +68,12 @@ const TrendingTags = ({ limit = 10 }) => {
             variant="link"
             className="p-0 mt-2"
             onClick={fetchTrendingTags}
-            style={{ display: "flex", alignItems: "center", gap: "5px", margin: "0 auto" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              margin: "0 auto",
+            }}
           >
             <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
@@ -78,7 +90,11 @@ const TrendingTags = ({ limit = 10 }) => {
         <div className="d-flex flex-wrap gap-2">
           {tags.length > 0 ? (
             tags.map((tag) => (
-              <Link to={`/tags/${tag.name}`} key={tag.name} className="text-decoration-none">
+              <Link
+                to={`/tags/${tag.name}`}
+                key={tag.name}
+                className="text-decoration-none"
+              >
                 <Badge
                   bg="light"
                   text="dark"

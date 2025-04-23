@@ -29,9 +29,12 @@ const WelcomeScreen = ({ onNext }) => {
   // Fetch welcome content from backend
   const fetchWelcomeContent = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/welcome", {
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        "https://waydown-backend.onrender.com/api/welcome",
+        {
+          timeout: 5000,
+        }
+      );
       setContent({
         title: response.data.title || "Welcome to Hidden Spots",
         description:
@@ -41,23 +44,28 @@ const WelcomeScreen = ({ onNext }) => {
           {
             icon: "🗺️",
             title: "Explore Hidden Gems",
-            description: "Find secret spots that aren't on typical tourist maps",
+            description:
+              "Find secret spots that aren't on typical tourist maps",
           },
           {
             icon: "🤖",
             title: "AI Travel Assistant",
-            description: "Get personalized recommendations based on your preferences",
+            description:
+              "Get personalized recommendations based on your preferences",
           },
           {
             icon: "👥",
             title: "Community Driven",
-            description: "Share your own discoveries and connect with fellow explorers",
+            description:
+              "Share your own discoveries and connect with fellow explorers",
           },
         ],
       });
       setLoading(false);
     } catch (err) {
-      setError("Failed to load welcome content. Please check your connection and try again.");
+      setError(
+        "Failed to load welcome content. Please check your connection and try again."
+      );
       setLoading(false);
     }
   }, []);
@@ -82,7 +90,12 @@ const WelcomeScreen = ({ onNext }) => {
   if (loading || userLoading) {
     return (
       <div className="text-center py-5" aria-live="polite">
-        <Spinner animation="border" size="sm" className="me-2" aria-hidden="true" />
+        <Spinner
+          animation="border"
+          size="sm"
+          className="me-2"
+          aria-hidden="true"
+        />
         <span>Loading welcome screen...</span>
       </div>
     );
@@ -121,7 +134,10 @@ const WelcomeScreen = ({ onNext }) => {
           alt="Hidden Spots Logo"
           className="img-fluid mb-3"
           style={{ maxWidth: "150px" }}
-          onError={(e) => (e.target.src = "https://th.bing.com/th/id/OIP.dfyEzm-iv7XLwz4Qfd5_jgHaIx?w=147&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7")}
+          onError={(e) =>
+            (e.target.src =
+              "https://th.bing.com/th/id/OIP.dfyEzm-iv7XLwz4Qfd5_jgHaIx?w=147&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7")
+          }
         />
         <h2 className="fw-bold mb-3">{content.title}</h2>
         <p className="text-muted mb-4">{content.description}</p>

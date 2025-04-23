@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import SpotCard from './SpotCard';
-import { ArrowRepeat, PlusCircle } from 'react-bootstrap-icons'; // Import icons
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Row, Col, Spinner, Alert, Button } from "react-bootstrap";
+import axios from "axios";
+import PropTypes from "prop-types";
+import SpotCard from "./SpotCard";
+import { ArrowRepeat, PlusCircle } from "react-bootstrap-icons"; // Import icons
 
 const NearbySpotsList = ({ userLocation }) => {
   const [spots, setSpots] = useState([]);
@@ -18,8 +18,18 @@ const NearbySpotsList = ({ userLocation }) => {
   // Fetch nearby spots from backend
   const fetchSpots = useCallback(
     async (currentPage = 1, append = false) => {
-      console.log("Fetching spots with params:", { lat: userLocation?.lat, lon: userLocation?.lng, radius, page: currentPage, limit });
-      if (!userLocation?.lat || !userLocation?.lng || (userLocation.lat === 0 && userLocation.lng === 0)) {
+      console.log("Fetching spots with params:", {
+        lat: userLocation?.lat,
+        lon: userLocation?.lng,
+        radius,
+        page: currentPage,
+        limit,
+      });
+      if (
+        !userLocation?.lat ||
+        !userLocation?.lng ||
+        (userLocation.lat === 0 && userLocation.lng === 0)
+      ) {
         setError("Unable to load nearby spots. Location unavailable.");
         setLoading(false);
         return;
@@ -39,10 +49,13 @@ const NearbySpotsList = ({ userLocation }) => {
           limit,
         };
 
-        const response = await axios.get('http://localhost:3000/api/spots/nearby', {
-          params,
-          timeout: 5000,
-        });
+        const response = await axios.get(
+          "https://waydown-backend.onrender.com/api/spots/nearby",
+          {
+            params,
+            timeout: 5000,
+          }
+        );
 
         const { spots: newSpots, totalPages: newTotalPages } = response.data;
 
@@ -50,8 +63,11 @@ const NearbySpotsList = ({ userLocation }) => {
         const mappedSpots = newSpots.map((spot) => ({
           ...spot,
           id: spot._id, // Ensure id is correctly mapped
-          location: typeof spot.location === 'object' ? spot.location.coordinates.join(', ') : spot.location,
-          images: spot.photos.map(photo => photo.url),
+          location:
+            typeof spot.location === "object"
+              ? spot.location.coordinates.join(", ")
+              : spot.location,
+          images: spot.photos.map((photo) => photo.url),
         }));
 
         setSpots((prev) => (append ? [...prev, ...mappedSpots] : mappedSpots));
@@ -61,7 +77,7 @@ const NearbySpotsList = ({ userLocation }) => {
         setLoadingMore(false);
       } catch (err) {
         console.error(err);
-        setError('Failed to load nearby spots. Please try again.');
+        setError("Failed to load nearby spots. Please try again.");
         setLoading(false);
         setLoadingMore(false);
       }
@@ -108,7 +124,7 @@ const NearbySpotsList = ({ userLocation }) => {
             variant="link"
             onClick={() => fetchSpots(1)}
             className="p-0 ms-2"
-            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ display: "flex", alignItems: "center", gap: "5px" }}
           >
             <ArrowRepeat size={16} /> {/* Add retry icon */}
             Retry
@@ -142,7 +158,12 @@ const NearbySpotsList = ({ userLocation }) => {
             variant="primary"
             onClick={handleLoadMore}
             disabled={loadingMore}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: '0 auto' }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              margin: "0 auto",
+            }}
           >
             {loadingMore ? (
               <>

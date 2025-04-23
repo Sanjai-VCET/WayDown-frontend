@@ -21,7 +21,9 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
       const serverReviews = reviews || [];
       const merged = [
         ...serverReviews,
-        ...pendingReviews.filter((pr) => !serverReviews.some((sr) => sr.id === pr.id)),
+        ...pendingReviews.filter(
+          (pr) => !serverReviews.some((sr) => sr.id === pr.id)
+        ),
       ];
       console.log("Merged localReviews:", merged);
       return merged.length > 0 ? merged : prev; // Fallback to previous state if server returns empty
@@ -51,11 +53,11 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
       try {
         const token = await getIdToken(user);
         const response = await axios.post(
-          `http://localhost:3000/api/spots/${spotId}/reviews`,
-          { 
-            content: newReview, 
+          `https://waydown-backend.onrender.com/api/spots/${spotId}/reviews`,
+          {
+            content: newReview,
             rating: parseInt(selectedRating, 10),
-            username: user.displayName || user.email || "Anonymous" // Explicitly send username
+            username: user.displayName || user.email || "Anonymous", // Explicitly send username
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -97,34 +99,58 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
 
   const formatDate = useCallback((dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString || Date.now()).toLocaleDateString(undefined, options);
+    return new Date(dateString || Date.now()).toLocaleDateString(
+      undefined,
+      options
+    );
   }, []);
 
-  if (userLoading) return <div className="text-center py-5"><Spinner animation="border" size="sm" className="me-2" />Loading reviews...</div>;
-  if (error) return (
-    <div className="text-center py-5">
-      <Alert variant="danger" className="mb-4">
-        {error}
-        <Button variant="link" onClick={() => setError(null)} className="p-0 ms-2">Retry</Button>
-      </Alert>
-    </div>
-  );
+  if (userLoading)
+    return (
+      <div className="text-center py-5">
+        <Spinner animation="border" size="sm" className="me-2" />
+        Loading reviews...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-center py-5">
+        <Alert variant="danger" className="mb-4">
+          {error}
+          <Button
+            variant="link"
+            onClick={() => setError(null)}
+            className="p-0 ms-2"
+          >
+            Retry
+          </Button>
+        </Alert>
+      </div>
+    );
 
   return (
     <div className="user-reviews">
       <h4 className="mb-3">Reviews</h4>
       <div className="review-list">
         {localReviews.length === 0 ? (
-          <p className="text-center py-4 text-muted">No reviews yet. Be the first to leave a review!</p>
+          <p className="text-center py-4 text-muted">
+            No reviews yet. Be the first to leave a review!
+          </p>
         ) : (
           localReviews.map((review) => (
-            <Card key={review.id || review.createdAt} className="mb-3" aria-label={`Review by ${review.user?.username}`}>
+            <Card
+              key={review.id || review.createdAt}
+              className="mb-3"
+              aria-label={`Review by ${review.user?.username}`}
+            >
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <div className="d-flex align-items-center">
                     <div className="avatar me-2">
                       <img
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(review.user?.username || "Anonymous")}&background=random`}
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          review.user?.username || "Anonymous"
+                        )}&background=random`}
                         alt={`${review.user?.username || "Anonymous"}'s avatar`}
                         className="rounded-circle"
                         width="40"
@@ -133,12 +159,18 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
                       />
                     </div>
                     <div>
-                      <h6 className="mb-0">{review.user?.username || "Anonymous"}</h6>
-                      <small className="text-muted">{formatDate(review.createdAt)}</small>
+                      <h6 className="mb-0">
+                        {review.user?.username || "Anonymous"}
+                      </h6>
+                      <small className="text-muted">
+                        {formatDate(review.createdAt)}
+                      </small>
                     </div>
                   </div>
                 </div>
-                <p className="mb-0">{review.content || "No comment provided."}</p>
+                <p className="mb-0">
+                  {review.content || "No comment provided."}
+                </p>
               </Card.Body>
             </Card>
           ))
@@ -167,7 +199,9 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
             >
               <option value="">Select a rating</option>
               {[1, 2, 3, 4, 5].map((num) => (
-                <option key={num} value={num.toString()}>{num} stars</option>
+                <option key={num} value={num.toString()}>
+                  {num} stars
+                </option>
               ))}
             </Form.Select>
           </Form.Group>
@@ -183,7 +217,9 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
           </Button>
         </Form>
       ) : (
-        <Alert variant="info" className="mt-4">Please log in to leave a review.</Alert>
+        <Alert variant="info" className="mt-4">
+          Please log in to leave a review.
+        </Alert>
       )}
     </div>
   );

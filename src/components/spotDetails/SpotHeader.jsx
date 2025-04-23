@@ -11,9 +11,12 @@ const SpotHeader = ({ spot, onRetry, setSpot }) => {
     if (!spot?.id) return;
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/spots/${spot.id}`, {
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        `https://waydown-backend.onrender.com/api/spots/${spot.id}`,
+        {
+          timeout: 5000,
+        }
+      );
       setSpot(response.data || {}); // Now setSpot is defined via props
       setLoading(false);
       setError(null);
@@ -43,7 +46,11 @@ const SpotHeader = ({ spot, onRetry, setSpot }) => {
       <div className="mb-3 text-center">
         <Alert variant="danger" className="mb-0">
           {error}
-          <Button variant="link" onClick={fetchSpotDetails} className="p-0 ms-2">
+          <Button
+            variant="link"
+            onClick={fetchSpotDetails}
+            className="p-0 ms-2"
+          >
             Retry
           </Button>
         </Alert>
@@ -62,7 +69,10 @@ const SpotHeader = ({ spot, onRetry, setSpot }) => {
   return (
     <div className="mb-3">
       <h1 className="mb-2">{spot.name || "Unnamed Spot"}</h1>
-      <div className="d-flex align-items-center" aria-label={`Location: ${spot.city || "Unknown"}`}>
+      <div
+        className="d-flex align-items-center"
+        aria-label={`Location: ${spot.city || "Unknown"}`}
+      >
         <i className="bi bi-geo-alt text-primary me-2" aria-hidden="true" />
         <span>{spot.city || "Unknown location"}</span>
       </div>

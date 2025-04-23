@@ -19,7 +19,7 @@ const RecommendationSection = () => {
       if (!user) return; // Skip if not logged in
       const token = await user.getIdToken();
       const response = await axios.get(
-        "http://localhost:3000/api/spots/recommend",
+        "https://waydown-backend.onrender.com/api/spots/recommend",
         {
           params: { page: 1, limit: 3 },
           headers: { Authorization: `Bearer ${token}` },
@@ -63,7 +63,8 @@ const RecommendationSection = () => {
       {/* Loading state */}
       {loading && (
         <div className="text-center py-4">
-          <Spinner size={24} className="me-2" /> {/* Use react-bootstrap-icons Spinner */}
+          <Spinner size={24} className="me-2" />{" "}
+          {/* Use react-bootstrap-icons Spinner */}
           Loading recommendations...
         </div>
       )}
@@ -71,7 +72,8 @@ const RecommendationSection = () => {
       {/* Error state */}
       {error && (
         <Alert variant="danger" className="mb-3 d-flex align-items-center">
-          <ExclamationTriangle size={20} className="me-2" /> {/* Add error icon */}
+          <ExclamationTriangle size={20} className="me-2" />{" "}
+          {/* Add error icon */}
           {error}
         </Alert>
       )}

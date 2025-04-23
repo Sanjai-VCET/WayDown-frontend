@@ -13,15 +13,22 @@ const ImageCarousel = ({ spotId }) => {
 
   const fetchImages = useCallback(async () => {
     try {
-      const token = auth.currentUser ? await getIdToken(auth.currentUser) : null;
-      const response = await axios.get(`http://localhost:3000/api/spots/${spotId}/images`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        timeout: 5000,
-      });
+      const token = auth.currentUser
+        ? await getIdToken(auth.currentUser)
+        : null;
+      const response = await axios.get(
+        `https://waydown-backend.onrender.com/api/spots/${spotId}/images`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          timeout: 5000,
+        }
+      );
       console.log("ImageCarousel Data:", response.data); // Debug log
       // Backend returns array of objects or URLs
       const imageArray = Array.isArray(response.data)
-        ? response.data.map(item => typeof item === "string" ? { url: item } : item)
+        ? response.data.map((item) =>
+            typeof item === "string" ? { url: item } : item
+          )
         : [];
       setImages(imageArray);
       setLoading(false);

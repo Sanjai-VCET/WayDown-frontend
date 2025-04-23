@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Card, Button, Spinner, Alert, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../../firebase';
+import { useState, useEffect, useCallback } from "react";
+import { Card, Button, Spinner, Alert, Dropdown } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import PropTypes from "prop-types";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../../firebase";
 
 const MyPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -14,7 +14,7 @@ const MyPosts = () => {
 
   // Format date
   const formatDate = useCallback((dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   }, []);
 
@@ -23,21 +23,24 @@ const MyPosts = () => {
     if (!user) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        throw new Error('Authentication token not found.');
+        throw new Error("Authentication token not found.");
       }
 
-      const response = await axios.get(`http://localhost:3000/api/users/${user.uid}/posts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        `https://waydown-backend.onrender.com/api/users/${user.uid}/posts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          timeout: 5000,
+        }
+      );
       setPosts(response.data || []);
       setLoading(false);
     } catch (err) {
-      setError('Failed to load your posts. Please try again.');
+      setError("Failed to load your posts. Please try again.");
       setLoading(false);
     }
   }, [user]);
@@ -47,7 +50,7 @@ const MyPosts = () => {
       fetchPosts();
     } else if (!user) {
       setLoading(false);
-      setError('You must be logged in to view your posts.');
+      setError("You must be logged in to view your posts.");
     }
   }, [user, userLoading, fetchPosts]);
 
@@ -57,20 +60,23 @@ const MyPosts = () => {
       if (!user) return;
 
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (!token) {
-          throw new Error('Authentication token not found.');
+          throw new Error("Authentication token not found.");
         }
 
-        await axios.delete(`http://localhost:3000/api/spots/${postId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          timeout: 5000,
-        });
+        await axios.delete(
+          `https://waydown-backend.onrender.com/api/spots/${postId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            timeout: 5000,
+          }
+        );
         setPosts((prev) => prev.filter((post) => post._id !== postId));
       } catch (err) {
-        setError('Failed to delete post. Please try again.');
+        setError("Failed to delete post. Please try again.");
       }
     },
     [user]
@@ -125,19 +131,22 @@ const MyPosts = () => {
         <Card key={post._id} className="mb-4">
           <Card.Body>
             <div className="d-flex">
-              <div className="post-image me-3" style={{ width: '120px' }}>
+              <div className="post-image me-3" style={{ width: "120px" }}>
                 <img
-                  src={post.photos?.[0] || '/fallback-image.jpg'} // Updated to use photos array
+                  src={post.photos?.[0] || "/fallback-image.jpg"} // Updated to use photos array
                   alt={post.name}
                   className="img-fluid rounded"
-                  onError={(e) => (e.target.src = '/fallback-image.jpg')}
+                  onError={(e) => (e.target.src = "/fallback-image.jpg")}
                 />
               </div>
 
               <div className="post-content flex-grow-1">
-                <h5 className="mb-1">{post.name}</h5> {/* Updated to use name */}
+                <h5 className="mb-1">{post.name}</h5>{" "}
+                {/* Updated to use name */}
                 <p className="text-muted small mb-2">
-                  {formatDate(post.createdAt)} • {post.location?.coordinates?.join(', ') || 'Unknown location'} {/* Updated to use createdAt and location */}
+                  {formatDate(post.createdAt)} •{" "}
+                  {post.location?.coordinates?.join(", ") || "Unknown location"}{" "}
+                  {/* Updated to use createdAt and location */}
                 </p>
                 <p className="mb-2">{post.content}</p>
                 <div className="d-flex">
@@ -154,7 +163,11 @@ const MyPosts = () => {
 
               <div className="post-actions">
                 <Dropdown>
-                  <Dropdown.Toggle variant="link" className="text-muted p-0" id={`dropdown-${post._id}`}>
+                  <Dropdown.Toggle
+                    variant="link"
+                    className="text-muted p-0"
+                    id={`dropdown-${post._id}`}
+                  >
                     <i className="bi bi-three-dots-vertical" />
                   </Dropdown.Toggle>
                   <Dropdown.Menu align="end">

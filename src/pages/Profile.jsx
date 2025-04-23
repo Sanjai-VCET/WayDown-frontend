@@ -64,7 +64,7 @@ const Profile = () => {
       }
 
       const response = await axios.get(
-        `http://localhost:3000/api/users/${user.uid}`,
+        `https://waydown-backend.onrender.com/api/users/${user.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,7 +94,7 @@ const Profile = () => {
       }
 
       const response = await axios.get(
-        `http://localhost:3000/api/users/${user.uid}/posts`,
+        `https://waydown-backend.onrender.com/api/users/${user.uid}/posts`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ const Profile = () => {
       }
 
       const response = await axios.get(
-        `http://localhost:3000/api/users/${user.uid}/settings`,
+        `https://waydown-backend.onrender.com/api/users/${user.uid}/settings`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -156,14 +156,20 @@ const Profile = () => {
       }
 
       const [followersResponse, followingResponse] = await Promise.all([
-        axios.get(`http://localhost:3000/api/users/${user.uid}/followers`, {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
-        }),
-        axios.get(`http://localhost:3000/api/users/${user.uid}/following`, {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
-        }),
+        axios.get(
+          `https://waydown-backend.onrender.com/api/users/${user.uid}/followers`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 5000,
+          }
+        ),
+        axios.get(
+          `https://waydown-backend.onrender.com/api/users/${user.uid}/following`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 5000,
+          }
+        ),
       ]);
 
       setFollowers(followersResponse.data.followers || []);
@@ -211,7 +217,7 @@ const Profile = () => {
         }
 
         await axios.put(
-          `http://localhost:3000/api/users/${user.uid}`,
+          `https://waydown-backend.onrender.com/api/users/${user.uid}`,
           userData,
           {
             headers: {
@@ -243,7 +249,7 @@ const Profile = () => {
         }
 
         await axios.put(
-          `http://localhost:3000/api/users/${user.uid}/settings`,
+          `https://waydown-backend.onrender.com/api/users/${user.uid}/settings`,
           settings,
           {
             headers: {

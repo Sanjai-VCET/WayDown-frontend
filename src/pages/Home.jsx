@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import { Container, Row, Col, Form, Button, Nav, Spinner, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Nav,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 import axios from "axios";
 import SearchBar from "../components/home/SearchBar";
 import RecommendationSection from "../components/home/RecommendationSection";
@@ -35,10 +44,13 @@ const Home = () => {
   // Fetch spots from backend
   const fetchSpots = useCallback(async () => {
     try {
-      const { data } = await axios.get("http://localhost:3000/api/spots", {
-        params: { page: 1, limit: 12 }, // Fetch 12 spots for display
-        timeout: 5000,
-      });
+      const { data } = await axios.get(
+        "https://waydown-backend.onrender.com/api/spots",
+        {
+          params: { page: 1, limit: 12 }, // Fetch 12 spots for display
+          timeout: 5000,
+        }
+      );
       const mappedSpots = (data.spots || []).map((spot) => ({
         ...spot,
         id: spot._id, // For compatibility
@@ -76,14 +88,14 @@ const Home = () => {
         (err) => {
           console.error("Error getting location:", err);
           setError("Unable to get your location. Using default location.");
-          setUserLocation({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
-          console.log("Default Location:", { lat: 40.7128, lng: -74.0060 });
+          setUserLocation({ lat: 40.7128, lng: -74.006 }); // Default to NYC
+          console.log("Default Location:", { lat: 40.7128, lng: -74.006 });
         }
       );
     } else {
       setError("Geolocation is not supported by this browser.");
-      setUserLocation({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
-      console.log("Default Location:", { lat: 40.7128, lng: -74.0060 });
+      setUserLocation({ lat: 40.7128, lng: -74.006 }); // Default to NYC
+      console.log("Default Location:", { lat: 40.7128, lng: -74.006 });
     }
   }, []);
 
