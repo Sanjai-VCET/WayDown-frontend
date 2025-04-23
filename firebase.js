@@ -11,7 +11,7 @@ import { getAuth } from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyD9vjyz0m4pJ8-UUKKabuQjTrLyQNil400",
   authDomain: "waydown-dbd87.firebaseapp.com",
-  projectId: "waydown-dbd87",
+  projectId: "waydown-dbd87", 
   storageBucket: "waydown-dbd87.firebasestorage.app",
   messagingSenderId: "843162942125",
   appId: "1:843162942125:web:2461ba79668ae671622424",
