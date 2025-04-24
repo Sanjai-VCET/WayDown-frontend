@@ -24,7 +24,7 @@ import WeatherInfo from "../components/spotDetails/WeatherInfo";
 import View360Component from "../components/spotDetails/View360Component";
 import { useSpots } from "../context/SpotContext";
 
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = "https://waydown-backend.onrender.com"; // Adjust if your backend runs on a different port
 
 const SpotDetails = () => {
   const { id } = useParams();
