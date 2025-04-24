@@ -29,7 +29,7 @@ const MyPosts = () => {
       }
 
       const response = await axios.get(
-        `https://waydown-backend.onrender.com/api/users/${user.uid}/posts`,
+        `https://waydown-backend-0w9y.onrender.com/api/users/${user.uid}/posts`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,7 +66,7 @@ const MyPosts = () => {
         }
 
         await axios.delete(
-          `https://waydown-backend.onrender.com/api/spots/${postId}`,
+          `https://waydown-backend-0w9y.onrender.com/api/spots/${postId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -22,7 +22,7 @@ const TrendingTags = ({ limit = 10 }) => {
     try {
       const token = await auth.currentUser?.getIdToken();
       const response = await axios.get(
-        "https://waydown-backend.onrender.com/api/community/tags/trending",
+        "https://waydown-backend-0w9y.onrender.com/api/community/tags/trending",
         {
           params: { limit },
           headers: { Authorization: `Bearer ${token}` },

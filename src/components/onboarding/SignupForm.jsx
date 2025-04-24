@@ -40,7 +40,7 @@ const SignupForm = ({ onFormTypeChange }) => {
 
         // Register user via backend
         const registerResponse = await fetch(
-          "https://waydown-backend.onrender.com/api/auth/register",
+          "https://waydown-backend-0w9y.onrender.com/api/auth/register",
           {
             method: "POST",
             headers: {
@@ -87,7 +87,7 @@ const SignupForm = ({ onFormTypeChange }) => {
 
         // Fetch welcome message
         const welcomeResponse = await fetch(
-          "https://waydown-backend.onrender.com/api/welcome",
+          "https://waydown-backend-0w9y.onrender.com/api/welcome",
           {
             method: "GET",
             headers: {

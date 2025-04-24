@@ -32,7 +32,7 @@ const PostFeed = ({ onLike, onAddComment }) => {
       console.log("🚀 Fetching posts from API:", { page, limit });
 
       const response = await axios.get(
-        "https://waydown-backend.onrender.com/api/community/posts",
+        "https://waydown-backend-0w9y.onrender.com/api/community/posts",
         {
           params: { page, limit },
           timeout: 5000,
@@ -52,7 +52,7 @@ const PostFeed = ({ onLike, onAddComment }) => {
         postsData.map(async (post) => {
           try {
             const commentsResponse = await axios.get(
-              `https://waydown-backend.onrender.com/api/community/posts/${post._id}/comments`,
+              `https://waydown-backend-0w9y.onrender.com/api/community/posts/${post._id}/comments`,
               { timeout: 5000 }
             );
             return { ...post, comments: commentsResponse.data || [] };

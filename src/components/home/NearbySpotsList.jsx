@@ -50,7 +50,7 @@ const NearbySpotsList = ({ userLocation }) => {
         };
 
         const response = await axios.get(
-          "https://waydown-backend.onrender.com/api/spots/nearby",
+          "https://waydown-backend-0w9y.onrender.com/api/spots/nearby",
           {
             params,
             timeout: 5000,

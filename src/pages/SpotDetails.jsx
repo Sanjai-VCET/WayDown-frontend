@@ -24,7 +24,7 @@ import WeatherInfo from "../components/spotDetails/WeatherInfo";
 import View360Component from "../components/spotDetails/View360Component";
 import { useSpots } from "../context/SpotContext";
 
-axios.defaults.baseURL = "https://waydown-backend.onrender.com"; // Adjust if your backend runs on a different port
+axios.defaults.baseURL = "https://waydown-backend-0w9y.onrender.com"; // Adjust if your backend runs on a different port
 
 const SpotDetails = () => {
   const { id } = useParams();
@@ -91,9 +91,13 @@ const SpotDetails = () => {
 
   useEffect(() => {
     if (!spot || !spot.coordinates) return;
-    const map = L.map(mapRef.current).setView([spot.coordinates.lat, spot.coordinates.lng], 14);
+    const map = L.map(mapRef.current).setView(
+      [spot.coordinates.lat, spot.coordinates.lng],
+      14
+    );
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
     L.marker([spot.coordinates.lat, spot.coordinates.lng])
       .addTo(map)
@@ -135,25 +139,61 @@ const SpotDetails = () => {
     }
   }, [refetchSpot]);
 
-  if (loading) return <Container className="py-5 text-center"><Spinner animation="border" size="sm" className="me-2" aria-label="Loading spot details" />Loading Spot Details...</Container>;
-  if (error || !spot) return (
-    <Container className="py-5 text-center">
-      <Alert variant="danger" className="mb-4">
-        {error || "Spot not found."}
-        <Button variant="link" onClick={fetchSpotDetails} className="p-0 ms-2">Retry</Button>
-      </Alert>
-      <Link to="/home" className="btn btn-primary" aria-label="Return to Home">Back to Home</Link>
-    </Container>
-  );
+  if (loading)
+    return (
+      <Container className="py-5 text-center">
+        <Spinner
+          animation="border"
+          size="sm"
+          className="me-2"
+          aria-label="Loading spot details"
+        />
+        Loading Spot Details...
+      </Container>
+    );
+  if (error || !spot)
+    return (
+      <Container className="py-5 text-center">
+        <Alert variant="danger" className="mb-4">
+          {error || "Spot not found."}
+          <Button
+            variant="link"
+            onClick={fetchSpotDetails}
+            className="p-0 ms-2"
+          >
+            Retry
+          </Button>
+        </Alert>
+        <Link
+          to="/home"
+          className="btn btn-primary"
+          aria-label="Return to Home"
+        >
+          Back to Home
+        </Link>
+      </Container>
+    );
   if (typeof spot !== "object" || spot === null) {
     console.error("Spot is not an object:", spot);
     return (
       <Container className="py-5 text-center">
         <Alert variant="danger" className="mb-4">
           Invalid spot data. Please try again.
-          <Button variant="link" onClick={fetchSpotDetails} className="p-0 ms-2">Retry</Button>
+          <Button
+            variant="link"
+            onClick={fetchSpotDetails}
+            className="p-0 ms-2"
+          >
+            Retry
+          </Button>
         </Alert>
-        <Link to="/home" className="btn btn-primary" aria-label="Return to Home">Back to Home</Link>
+        <Link
+          to="/home"
+          className="btn btn-primary"
+          aria-label="Return to Home"
+        >
+          Back to Home
+        </Link>
       </Container>
     );
   }
@@ -162,23 +202,45 @@ const SpotDetails = () => {
     <Container className="py-4" aria-label={`Details for ${spot.name}`}>
       <Row className="mb-4">
         <Col>
-          <Link to="/home" className="text-decoration-none mb-3 d-inline-block" aria-label="Back to Explore">
-            <i className="bi bi-arrow-left me-2" aria-hidden="true" />Back to Explore
+          <Link
+            to="/home"
+            className="text-decoration-none mb-3 d-inline-block"
+            aria-label="Back to Explore"
+          >
+            <i className="bi bi-arrow-left me-2" aria-hidden="true" />
+            Back to Explore
           </Link>
-          <SpotHeader spot={spot} onRetry={fetchSpotDetails} setSpot={setSpot} />
+          <SpotHeader
+            spot={spot}
+            onRetry={fetchSpotDetails}
+            setSpot={setSpot}
+          />
           <div className="d-flex flex-wrap gap-2 mb-3">
             <Badge bg="primary">{spot.tags?.[0] || "Unknown"}</Badge>
-            <Badge bg="secondary"><i className="bi bi-star-fill me-1" aria-hidden="true" />{spot.rating || "N/A"}</Badge>
-            <Badge bg="info"><i className="bi bi-geo-alt me-1" aria-hidden="true" />{spot.distance ? `${spot.distance} km away` : "Distance unknown"}</Badge>
+            <Badge bg="secondary">
+              <i className="bi bi-star-fill me-1" aria-hidden="true" />
+              {spot.rating || "N/A"}
+            </Badge>
+            <Badge bg="info">
+              <i className="bi bi-geo-alt me-1" aria-hidden="true" />
+              {spot.distance ? `${spot.distance} km away` : "Distance unknown"}
+            </Badge>
             <Badge bg="success">{spot.bestTimeToVisit}</Badge>
           </div>
           <div className="d-flex flex-wrap gap-2 mb-4">
             <Button
               variant={spot.isFavorite ? "danger" : "outline-danger"}
               onClick={handleFavoriteToggle}
-              aria-label={spot.isFavorite ? "Remove from favorites" : "Add to favorites"}
+              aria-label={
+                spot.isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
             >
-              <i className={`bi ${spot.isFavorite ? "bi-heart-fill" : "bi-heart"} me-2`} aria-hidden="true" />
+              <i
+                className={`bi ${
+                  spot.isFavorite ? "bi-heart-fill" : "bi-heart"
+                } me-2`}
+                aria-hidden="true"
+              />
               {spot.isFavorite ? "Saved" : "Save"}
             </Button>
             <Button
@@ -189,40 +251,78 @@ const SpotDetails = () => {
               rel="noopener noreferrer"
               aria-label="Get Directions"
             >
-              <i className="bi bi-compass me-2" aria-hidden="true" />Get Directions
+              <i className="bi bi-compass me-2" aria-hidden="true" />
+              Get Directions
             </Button>
             <Button
               variant="outline-primary"
-              onClick={() => navigator.clipboard.writeText(window.location.href)}
+              onClick={() =>
+                navigator.clipboard.writeText(window.location.href)
+              }
               aria-label="Share this spot"
             >
-              <i className="bi bi-share me-2" aria-hidden="true" />Share
+              <i className="bi bi-share me-2" aria-hidden="true" />
+              Share
             </Button>
           </div>
         </Col>
       </Row>
       <Row className="mb-4">
-        <Col md={8}><ImageCarousel spotId={id} /></Col>
+        <Col md={8}>
+          <ImageCarousel spotId={id} />
+        </Col>
         <Col md={4}>
-          <WeatherInfo spotId={id} coordinates={spot.coordinates} location={spot.city || "unknown location"} stable={true} />
-          <div className="mt-3"><View360Component spotId={id} /></div>
+          <WeatherInfo
+            spotId={id}
+            coordinates={spot.coordinates}
+            location={spot.city || "unknown location"}
+            stable={true}
+          />
+          <div className="mt-3">
+            <View360Component spotId={id} />
+          </div>
         </Col>
       </Row>
       <Row>
         <Col>
-          <Tabs defaultActiveKey="description" className="mb-4" aria-label="Spot Details Tabs" onSelect={handleTabSelect}>
-            <Tab eventKey="description" title="Description" id="description-tab">
-              <DescriptionSection spot={spot} onRetry={fetchSpotDetails} setSpot={setSpot} />
+          <Tabs
+            defaultActiveKey="description"
+            className="mb-4"
+            aria-label="Spot Details Tabs"
+            onSelect={handleTabSelect}
+          >
+            <Tab
+              eventKey="description"
+              title="Description"
+              id="description-tab"
+            >
+              <DescriptionSection
+                spot={spot}
+                onRetry={fetchSpotDetails}
+                setSpot={setSpot}
+              />
             </Tab>
-            <Tab eventKey="reviews" title={`Reviews (${spot.reviews?.length || 0})`} id="reviews-tab">
+            <Tab
+              eventKey="reviews"
+              title={`Reviews (${spot.reviews?.length || 0})`}
+              id="reviews-tab"
+            >
               <div ref={reviewsRef}>
-                <UserReviews spotId={id} reviews={spot.reviews || []}  />
+                <UserReviews spotId={id} reviews={spot.reviews || []} />
               </div>
             </Tab>
             <Tab eventKey="nearby" title="Nearby Spots" id="nearby-tab">
               <div className="py-3">
                 {spot.coordinates ? (
-                  <div ref={mapRef} style={{ height: "400px", width: "100%", borderRadius: "8px" }} aria-label={`Map showing location of ${spot.name}`} />
+                  <div
+                    ref={mapRef}
+                    style={{
+                      height: "400px",
+                      width: "100%",
+                      borderRadius: "8px",
+                    }}
+                    aria-label={`Map showing location of ${spot.name}`}
+                  />
                 ) : (
                   <p>Location data unavailable.</p>
                 )}

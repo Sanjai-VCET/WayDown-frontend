@@ -23,7 +23,7 @@ const UserAvatar = ({ size = 40 }) => {
       }
 
       const response = await axios.get(
-        `https://waydown-backend.onrender.com/api/users/${user.uid}`,
+        `https://waydown-backend-0w9y.onrender.com/api/users/${user.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

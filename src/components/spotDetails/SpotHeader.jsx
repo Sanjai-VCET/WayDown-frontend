@@ -12,7 +12,7 @@ const SpotHeader = ({ spot, onRetry, setSpot }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://waydown-backend.onrender.com/api/spots/${spot.id}`,
+        `https://waydown-backend-0w9y.onrender.com/api/spots/${spot.id}`,
         {
           timeout: 5000,
         }

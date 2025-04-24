@@ -30,7 +30,7 @@ const WelcomeScreen = ({ onNext }) => {
   const fetchWelcomeContent = useCallback(async () => {
     try {
       const response = await axios.get(
-        "https://waydown-backend.onrender.com/api/welcome",
+        "https://waydown-backend-0w9y.onrender.com/api/welcome",
         {
           timeout: 5000,
         }

@@ -30,7 +30,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
   const fetchInterestCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        "https://waydown-backend.onrender.com/api/interests/categories",
+        "https://waydown-backend-0w9y.onrender.com/api/interests/categories",
         {
           timeout: 5000,
         }
@@ -58,7 +58,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
       }
 
       const response = await axios.get(
-        `https://waydown-backend.onrender.com/api/users/${user.uid}/interests`,
+        `https://waydown-backend-0w9y.onrender.com/api/users/${user.uid}/interests`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ const UserInterestSelection = ({ onNext, onSkip }) => {
       }
 
       await axios.post(
-        `https://waydown-backend.onrender.com/api/users/${user.uid}/interests`,
+        `https://waydown-backend-0w9y.onrender.com/api/users/${user.uid}/interests`,
         { interests: selectedInterests },
         {
           headers: {

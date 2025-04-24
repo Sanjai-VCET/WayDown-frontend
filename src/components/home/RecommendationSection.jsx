@@ -19,7 +19,7 @@ const RecommendationSection = () => {
       if (!user) return; // Skip if not logged in
       const token = await user.getIdToken();
       const response = await axios.get(
-        "https://waydown-backend.onrender.com/api/spots/recommend",
+        "https://waydown-backend-0w9y.onrender.com/api/spots/recommend",
         {
           params: { page: 1, limit: 3 },
           headers: { Authorization: `Bearer ${token}` },

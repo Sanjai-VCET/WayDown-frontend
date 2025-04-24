@@ -36,7 +36,7 @@ const Community = () => {
       console.log("🚀 Fetching posts with:", { page, limit });
 
       const { data } = await axios.get(
-        "https://waydown-backend.onrender.com/api/community/posts",
+        "https://waydown-backend-0w9y.onrender.com/api/community/posts",
         {
           params: { page: Number(page), limit: Number(limit) },
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -78,7 +78,7 @@ const Community = () => {
 
         // Backend handles both like and unlike with a single endpoint
         const response = await axios.post(
-          `https://waydown-backend.onrender.com/api/community/posts/${postId}/like`,
+          `https://waydown-backend-0w9y.onrender.com/api/community/posts/${postId}/like`,
           {},
           { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
         );
@@ -113,7 +113,7 @@ const Community = () => {
       try {
         const token = await user.getIdToken();
         const response = await axios.post(
-          `https://waydown-backend.onrender.com/api/community/posts/${postId}/comments`, // Changed to match backend
+          `https://waydown-backend-0w9y.onrender.com/api/community/posts/${postId}/comments`, // Changed to match backend
           { text: commentText },
           { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
         );
