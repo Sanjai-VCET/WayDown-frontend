@@ -33,7 +33,7 @@ In the project directory, you can run:
 ### `npm run dev`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Open [https://waydown-backend-0w9y.onrender.com](https://waydown-backend-0w9y.onrender.com) to view it in your browser.
 
 ### `npm run build`
 
@@ -46,4 +46,4 @@ Lints the codebase using ESLint.
 ### `npm run preview`
 
 Previews the production build locally.
-"# WayDown-frontend" 
+"# WayDown-frontend"
