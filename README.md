@@ -1,6 +1,6 @@
-# Hidden Spots Locator Frontend
+# Tourist Spots Locator Frontend
 
-This is the frontend for the Hidden Spots Locator application. It is built using React and Vite.
+This is the frontend for the Less Visited Spots Locator application. It is built using React and Vite.
 
 ## Project Structure
 
