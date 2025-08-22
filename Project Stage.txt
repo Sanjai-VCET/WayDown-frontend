@@ -1,0 +1,80 @@
+
+# Project Stage Document
+
+## Implemented Modules
+
+### 1. Core
+- **Firebase Integration**: Handles user authentication and authorization.
+- **API Layer**: Centralized API management using Axios, with interceptors for token handling.
+
+### 2. User Authentication & Onboarding
+- **Login/Signup**: Standard email/password authentication.
+- **Protected Routes**: Ensures only authenticated users can access certain pages.
+- **User Profile**: View and edit user information.
+
+### 3. Home Page
+- **Interactive Map**: Displays hidden spots using Leaflet, with custom markers for different categories.
+- **Nearby Spots**: Lists spots near the user's location.
+- **Search**: Allows users to search for spots.
+- **Trending Spots**: Carousel showcasing popular spots.
+
+### 4. Spot Details
+- **Image Carousel**: Displays images of the spot.
+- **360 View**: Interactive 360-degree view of the spot.
+- **Weather Information**: Shows current weather conditions.
+- **User Reviews**: Users can read and write reviews for spots.
+
+### 5. Community
+- **Post Feed**: Displays posts from the community.
+- **User Post Form**: Allows users to create new posts.
+- **Popular Users**: Highlights active users.
+- **Trending Tags**: Shows popular tags.
+
+### 6. AI Assistant
+- **AI Travel Planner**: Generates personalized travel itineraries.
+- **Nearby Suggestions**: Recommends nearby spots.
+- **Safety Alerts**: Provides safety information for different regions.
+- **Transportation Recommender**: Suggests transportation options.
+
+### 7. Admin Dashboard
+- **Analytics**: Displays key metrics about users, spots, and posts.
+- **User Management**: Allows admins to manage users (e.g., ban).
+- **Spot Management**: Allows admins to manage spots (e.g., add, edit, delete).
+- **User Reports**: Displays reports submitted by users.
+
+## Backend API Endpoints Used
+
+### Authentication
+- `POST /api/users/:id`: Create a new user.
+- `GET /api/users/:id`: Get user details.
+- `PUT /api/users/:id`: Update user profile.
+
+### Spots
+- `GET /api/spots`: Get all spots.
+- `GET /api/spots/nearby`: Get spots near a specific location.
+- `POST /api/spots`: Create a new spot.
+- `PUT /api/spots/:id`: Update a spot.
+- `DELETE /api/spots/:id`: Delete a spot.
+- `POST /api/spots/:id/reviews`: Add a review to a spot.
+
+### Community
+- `GET /api/community/posts`: Get all community posts.
+- `POST /api/community/posts`: Create a new community post.
+- `GET /api/community/posts/:id/comments`: Get comments for a post.
+
+### Favorites
+- `GET /api/users/:id/favorites`: Get user's favorite spots.
+- `POST /api/users/:id/favorites`: Add or remove a spot from favorites.
+
+### Admin
+- `GET /api/analytics`: Get analytics data.
+- `GET /api/users`: Get all users.
+- `PUT /api/users/:id/ban`: Ban a user.
+- `GET /api/reports`: Get all user reports.
+- `PUT /api/reports/:id`: Update a user report.
+
+### AI Assistant
+- `POST https://shreesh.app.n8n.cloud/webhook-test/01c85105-266d-41ca-ab70-dd12c1bf7c63`: AI Travel Planner webhook.
+
+### Other
+- `POST /api/newsletter/subscribe`: Subscribe to the newsletter.
