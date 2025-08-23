@@ -59,7 +59,7 @@ export const SpotProvider = ({ children }) => {
     throttle(async () => {
       try {
         const { data } = await retryWithBackoff(() =>
-          axios.get("http://localhost:5000/api/spots", { timeout: 5000 })
+          axios.get("https://waydown-backend.onrender.com/api/spots", { timeout: 5000 })
         );
         const spotsData = Array.isArray(data) ? data : [];
         setSpots(spotsData);
@@ -78,7 +78,7 @@ export const SpotProvider = ({ children }) => {
       try {
         const token = await getIdToken(auth.currentUser);
         const response = await retryWithBackoff(() =>
-          axios.get(`http://localhost:5000/api/users/${uid}/favorites`, {
+          axios.get(`https://waydown-backend.onrender.com/api/users/${uid}/favorites`, {
             headers: { Authorization: `Bearer ${token}` },
           })
         );
@@ -100,7 +100,7 @@ export const SpotProvider = ({ children }) => {
       try {
         const token = await getIdToken(user);
         const { data } = await retryWithBackoff(() =>
-          axios.get(`http://localhost:5000/api/users/${user.uid}/favorites`, {
+          axios.get(`https://waydown-backend.onrender.com/api/users/${user.uid}/favorites`, {
             headers: { Authorization: `Bearer ${token}` },
             timeout: 5000,
           })
@@ -203,7 +203,7 @@ export const SpotProvider = ({ children }) => {
         const token = await getIdToken(user);
         await retryWithBackoff(() =>
           axios.post(
-            `http://localhost:5000/api/users/${user.uid}/favorites`,
+            `https://waydown-backend.onrender.com/api/users/${user.uid}/favorites`,
             { spotId, isFavorite: newFavoriteStatus },
             { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
           )
@@ -245,7 +245,7 @@ export const SpotProvider = ({ children }) => {
         const token = await getIdToken(user);
         const { data } = await retryWithBackoff(() =>
           axios.post(
-            `http://localhost:5000/api/spots/${spotId}/reviews`,
+            `https://waydown-backend.onrender.com/api/spots/${spotId}/reviews`,
             {
               ...review,
               userId: user.uid,

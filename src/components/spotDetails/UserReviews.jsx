@@ -53,7 +53,7 @@ const UserReviews = ({ spotId, reviews, onReviewAdded }) => {
       try {
         const token = await getIdToken(user);
         const response = await axios.post(
-          `http://localhost:5000/api/${spotId}/reviews`,
+          `https://waydown-backend.onrender.com/api/${spotId}/reviews`,
           {
             content: newReview,
             rating: parseInt(selectedRating, 10),

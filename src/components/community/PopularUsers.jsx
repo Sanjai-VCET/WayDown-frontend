@@ -34,7 +34,7 @@ const PopularUsers = ({ limit = 4 }) => {
       console.log("🚀 Fetching popular users with token:", token); // Log full token for debugging (remove in production)
 
       const response = await axios.get(
-        "http://localhost:5000/api//apiusers/popular",
+        "https://waydown-backend.onrender.com/api//apiusers/popular",
         {
           params: { limit },
           headers: { Authorization: `Bearer ${token}` },

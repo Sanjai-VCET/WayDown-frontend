@@ -23,7 +23,7 @@ import DescriptionSection from "../components/spotDetails/DescriptionSection";
 import UserReviews from "../components/spotDetails/UserReviews";
 import View360Component from "../components/spotDetails/View360Component";
 import { useSpots } from "../context/SpotContext";
-axios.defaults.baseURL = "http://localhost:5000"; // Adjust if your backend runs on a different port
+axios.defaults.baseURL = "https://waydown-backend.onrender.com/"; // Adjust if your backend runs on a different port
 
 const SpotDetails = () => {
   const { id } = useParams();

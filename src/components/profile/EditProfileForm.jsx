@@ -31,7 +31,7 @@ const EditProfileForm = ({ onSave, onCancel }) => {
       }
 
       const response = await axios.get(
-        `http://localhost:5000/api/users/${user.uid}`,
+        `https://waydown-backend.onrender.com/api/users/${user.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -54,7 +54,7 @@ const EditProfileForm = ({ onSave, onCancel }) => {
   const fetchInterestOptions = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/interests/options",
+        "https://waydown-backend.onrender.com/api/interests/options",
         {
           timeout: 5000,
         }
@@ -145,7 +145,7 @@ const EditProfileForm = ({ onSave, onCancel }) => {
           formDataUpload.append("avatar", avatarFile);
 
           const avatarResponse = await axios.post(
-            `http://localhost:5000/api/users/${user.uid}/avatar`,
+            `https://waydown-backend.onrender.com/api/users/${user.uid}/avatar`,
             formDataUpload,
             {
               headers: {
@@ -167,7 +167,7 @@ const EditProfileForm = ({ onSave, onCancel }) => {
         };
 
         await axios.put(
-          `http://localhost:5000/api/users/${user.uid}`,
+          `https://waydown-backend.onrender.com/api/users/${user.uid}`,
           updatedProfile,
           {
             headers: {

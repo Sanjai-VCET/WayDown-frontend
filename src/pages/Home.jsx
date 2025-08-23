@@ -45,7 +45,7 @@ const Home = () => {
   const fetchSpots = useCallback(async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:5000/api/spots",
+        "https://waydown-backend.onrender.com/api/spots",
         {
           params: { page: 1, limit: 12 }, // Fetch 12 spots for display
           timeout: 5000,

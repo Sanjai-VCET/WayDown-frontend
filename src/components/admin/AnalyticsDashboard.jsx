@@ -16,7 +16,7 @@ const AnalyticsDashboard = () => {
         if (!isAuthenticated || !token) {
           throw new Error('User is not authenticated');
         }
-        const response = await axios.get('http://localhost:5000/api/analytics', {
+        const response = await axios.get('https://waydown-backend.onrender.com/api/analytics', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });

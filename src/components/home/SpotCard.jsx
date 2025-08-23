@@ -39,8 +39,8 @@ const SpotCard = ({ spot }) => {
 
       try {
         const url = isFavorite
-          ? `http://localhost:5000/api/spots/${spot.id}/unlike`
-          : `http://localhost:5000/api/spots/${spot.id}/like`;
+          ? `https://waydown-backend.onrender.com/api/spots/${spot.id}/unlike`
+          : `https://waydown-backend.onrender.com/api/spots/${spot.id}/like`;
 
         console.log('Making request to:', url);
 

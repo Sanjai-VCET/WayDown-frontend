@@ -28,7 +28,7 @@ const WelcomeScreen = ({ onNext }) => {
   // Fetch welcome content from backend
   const fetchWelcomeContent = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/welcome", {
+      const response = await axios.get("https://waydown-backend.onrender.com/api/welcome", {
         timeout: 5000,
       });
       setContent({

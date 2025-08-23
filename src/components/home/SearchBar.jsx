@@ -37,7 +37,7 @@ const SearchBar = ({ onSearch }) => {
 
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/search/suggestions",
+          "https://waydown-backend.onrender.com/api/search/suggestions",
           {
             params: { q: searchQuery },
             timeout: 5000,
@@ -82,7 +82,7 @@ const SearchBar = ({ onSearch }) => {
 
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/search",
+          "https://waydown-backend.onrender.com/api/search",
           {
             params: { query },
             timeout: 5000,

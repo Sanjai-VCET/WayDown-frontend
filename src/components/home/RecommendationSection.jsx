@@ -21,7 +21,7 @@ const RecommendationSection = () => {
       }
 
       console.log("Fetching recommendations with token:", token); // Debug token
-      const response = await axios.get("http://localhost:5000/api/spots/recommend", {
+      const response = await axios.get("https://waydown-backend.onrender.com/api/spots/recommend", {
         params: { page: 1, limit: 3 },
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5000,

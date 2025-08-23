@@ -78,7 +78,7 @@ const UserPostForm = ({ onAddPost, onCancel }) => {
       try {
         const token = await user.getIdToken();
         const response = await axios.post(
-          "http://localhost:5000/api//apicommunity/posts",
+          "https://waydown-backend.onrender.com/api//apicommunity/posts",
           postData,
           {
             headers: {

@@ -19,7 +19,7 @@ const UserManagementTable = () => {
         if (!isAuthenticated || !token) {
           throw new Error('User is not authenticated');
         }
-        const response = await axios.get('http://localhost:5000/api/users', {
+        const response = await axios.get('https://waydown-backend.onrender.com/api/users', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
@@ -61,7 +61,7 @@ const UserManagementTable = () => {
       if (!isAuthenticated || !token) {
         throw new Error('User is not authenticated');
       }
-      await axios.put(`http://localhost:5000/api/users/${userToBan.id}/ban`, {}, {
+      await axios.put(`https://waydown-backend.onrender.com/api/users/${userToBan.id}/ban`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(users.map((user) =>

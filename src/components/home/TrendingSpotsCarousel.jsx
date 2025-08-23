@@ -23,7 +23,7 @@ const TrendingSpotsCarousel = ({ limit = 5 }) => {
   const fetchTrendingSpots = useCallback(async () => {
     try {
       const headers = isAuthenticated && token ? { Authorization: `Bearer ${token}` } : {};
-      const response = await axios.get("http://localhost:5000/api/spots/trending", {
+      const response = await axios.get("https://waydown-backend.onrender.com/api/spots/trending", {
         params: { limit },
         headers,
         timeout: 5000,

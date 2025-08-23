@@ -17,7 +17,7 @@ const ImageCarousel = ({ spotId }) => {
         ? await getIdToken(auth.currentUser)
         : null;
       const response = await axios.get(
-        `http://localhost:5000/api/spots/${spotId}/images`,
+        `https://waydown-backend.onrender.com/api/spots/${spotId}/images`,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           timeout: 5000,
