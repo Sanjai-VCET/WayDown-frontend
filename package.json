@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@n8n/chat": "^0.50.0",
+    "@photo-sphere-viewer/core": "^5.13.4",
+    "@photo-sphere-viewer/gyroscope-plugin": "^5.13.4",
+    "@photo-sphere-viewer/stereo-plugin": "^5.13.4",
     "@tanstack/query-sync-storage-persister": "^5.83.0",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-query-devtools": "^5.83.0",
